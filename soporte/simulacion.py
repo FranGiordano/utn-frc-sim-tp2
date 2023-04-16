@@ -6,16 +6,21 @@ import numpy as np
 
 def generar_lista_uniforme(n, a, b):
     if a > b:
-        c = a
-        a = b
-        b = c
+        a, b = b, a
     serie = []
     for i in range(n):
         x = a + (b - a) * rd.random()
         serie.append(x)
     return serie
 
-
+def generar_numeros_aleatorios_normal(cantidad, media, desviacion):
+    numeros_aleatorios = []
+    for i in range(cantidad):
+        r1 = rd.random()
+        r2 = rd.random()
+        z = math.sqrt(-2.0 * math.log(r1)) * math.cos(2 * math.pi * r2)
+        numeros_aleatorios.append(media + desviacion * z)
+    return numeros_aleatorios
 def generar_lista_exponencial_negativa(n, lam):
     serie = []
     for i in range(n):
