@@ -10,7 +10,7 @@ app = Dash(__name__,
            external_stylesheets=[dbc.themes.BOOTSTRAP],
            use_pages=True)
 
-app._favicon = "favicon.ico"
+app._favicon = "/assets/icons/favicon.ico"
 
 server = app.server
 

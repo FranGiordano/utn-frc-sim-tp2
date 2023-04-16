@@ -4,7 +4,6 @@ import dash_bootstrap_components as dbc
 import soporte.simulacion as sim
 from soporte.componentes import generar_tipos_distribuciones, generar_parametros, generar_visualizacion
 
-
 dash.register_page(__name__,
                    path="/tp2/",
                    title="Trabajo Práctico 2",
@@ -12,14 +11,14 @@ dash.register_page(__name__,
 
 # Esta es la estructura de la pagina
 layout = dbc.Container([
-        html.Center(html.H1('Trabajo práctico Nº2: Generación de números aleatorios')),
-        generar_tipos_distribuciones(),
-        html.Br(),
-        generar_parametros(),
-        html.Br(),
-        dbc.Alert("Distribución no generada. Revise nuevamente los datos.", color="danger", dismissable=True,
-                  id="alerta", is_open=False),
-        dbc.Spinner(id="sp_resultados", children={}, color="primary", show_initially=False)
+    html.H1('Trabajo Práctico Nº2: Variables Aleatorias'),
+    generar_tipos_distribuciones(),
+    html.Br(),
+    generar_parametros(),
+    html.Br(),
+    dbc.Alert("Distribución no generada. Revise nuevamente los datos.", color="danger", dismissable=True,
+              id="alerta", is_open=False),
+    dbc.Spinner(id="sp_resultados", children={}, color="primary", show_initially=False)
 ])
 
 
@@ -65,12 +64,9 @@ def mostrar_parametros(p_value):
     State("in_lambda", "value"),
     State("in_intervalos", "value"),
     prevent_initial_call=True
-
 )
 def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, intervalos):
-
     # Chequeo de formularios y generación de muestras por distribución
-
     match distribucion:
 
         case "U":
@@ -108,22 +104,29 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
             return True, no_update
 
     # Generación de histograma y datos de acuerdo a distribución
-
     match distribucion:
 
         case "N" | "U" | "EN":
 
             histograma = sim.generar_histograma_continua(serie, intervalos)
+            datos_frecuencia = sim.calcular_frecuencias_continua(serie, intervalos, distribucion)
+            datos_chi2 = sim.calcular_chi2(datos_frecuencia["Frecuencia observada"],
+                                           datos_frecuencia["Frecuencia esperada"], distribucion)
+            datos_ks = sim.calcular_ks(datos_frecuencia["Frecuencia observada"],
+                                       datos_frecuencia["Frecuencia esperada"])
 
         case "P":
 
             histograma = sim.generar_histograma_poisson(serie)
+            datos_frecuencia = sim.calcular_frecuencias_poisson(serie)
+            datos_chi2 = sim.calcular_chi2(datos_frecuencia["Frecuencia observada"],
+                                           datos_frecuencia["Frecuencia esperada"], distribucion)
+            datos_ks = None
 
         case _:
             return True, no_update
 
     # Generación de visualizacion
-
-    visualizacion = generar_visualizacion(histograma)
+    visualizacion = generar_visualizacion(histograma, datos_frecuencia, datos_chi2, datos_ks)
 
     return False, visualizacion

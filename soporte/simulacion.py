@@ -85,8 +85,8 @@ def generar_histograma_continua(muestras, n_barras):
             marker_line=dict(width=1, color="black")
         ),
         layout=go.Layout(
-            xaxis=dict(title="Valores"),
-            yaxis=dict(title="Cantidad"),
+            xaxis=dict(title="Valor"),
+            yaxis=dict(title="Frecuencia"),
             title={
                 "text": "Histograma",
                 "xanchor": "center",
@@ -123,8 +123,8 @@ def generar_histograma_poisson(muestras):
             marker_line=dict(width=1, color="black")
         ),
         layout=go.Layout(
-            xaxis=dict(title="Valores"),
-            yaxis=dict(title="Cantidad"),
+            xaxis=dict(title="Valor"),
+            yaxis=dict(title="Frecuencia"),
             title={
                 "text": "Histograma",
                 "xanchor": "center",
@@ -183,7 +183,7 @@ def calcular_frecuencias_continua(muestras, n_barras, distribucion):
     # Asignación de vectores en una tabla única
 
     diccionario = {
-        "#": [i + 1 for i in range(n_barras)],
+        "#": range(1, n_barras + 1),
         "Desde": li,
         "Hasta": ls,
         "Frecuencia observada": fo,
@@ -212,7 +212,7 @@ def calcular_frecuencias_poisson(muestras):
     prob = lam ** x * np.exp(-lam) / factorial(x)
     fe = np.round(prob * n, 0).astype(int)
 
-    # Asignación de vectores en una tabla única
+    # Asignación de vectores en un diccionario
 
     diccionario = {
         "#": x,
