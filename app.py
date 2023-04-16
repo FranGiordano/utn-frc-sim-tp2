@@ -66,7 +66,7 @@ txt_box_desviacion = dbc.Col(id="form-desv", children=[
 txt_box_lambda = dbc.Col(id="form-lambda", children=[
     dbc.FormFloating([
         dbc.Input(id="in_lambda", placeholder="Lambda", type="number",
-                  value=0, required=True, step=0.0001),
+                  value=0.5, required=True, step=0.0001),
         dbc.Label("Lambda"),
     ])])
 
@@ -99,6 +99,7 @@ app.layout = dbc.Container([
     Output('form-media', 'style'),
     Output('form-desv', 'style'),
     Output('form-lambda', 'style'),
+    Output('titulo-distribucion', 'children'),
     #Input('btn_cargar_param', 'n_clicks'),
     Input('controls-dist', 'value')
 )
@@ -107,138 +108,55 @@ def mostrar_parametros(p_value):
     #     raise PreventUpdate
     visible = {"display": "block"}
     oculto = {"display": "none"}
-
-
     if p_value == 'uniforme':
-        return visible, visible, oculto, oculto, oculto
+        return visible, visible, oculto, oculto, oculto, 'Distribucion Uniforme'
     elif p_value == 'normal':
-        return oculto, oculto, visible, visible, oculto
+        return oculto, oculto, visible, visible, oculto, 'Distribucion Normal'
     elif p_value in ('exponencial', 'poisson'):
-        return oculto, oculto, oculto, oculto, visible
+        return oculto, oculto, oculto, oculto, visible, 'Distribucion ' + p_value.capitalize()
     return oculto, oculto, oculto, oculto, oculto
 
+
 @app.callback(
-    Output('titulo-distribucion', 'children'),
-   # Input('btn_cargar_param', 'n_clicks'),
-    Input('controls-dist', 'value')
+    Output('histograma', 'figure'),
+    Input("btn_cargar_grafico", "n_clicks"),
+    State('controls-dist', 'value'),
+    State("in_cantidad_muestras", "value"),
+    State("in_limite_inferior", "value"),
+    State("in_limite_superior", "value"),
+    State("in_media", "value"),
+    State("in-desviacion", "value"),
+    State("in-lambda", "value"),
+    State("in_intervalos", "value"),
+
+    prevent_initial_call=True
+
 )
-def funcionalidad_generar( distribucion):
-    print(distribucion)
-    # if n_clicks == None:
-    #     raise PreventUpdate
+def generar_grafico(n_clicks,distribucion, n, li, ls, media, desv, lam, intervalos):
+    print('Click U: ')
+    print(n_clicks)
+    serie = []
+
     if distribucion == 'uniforme':
-        @app.callback(
-            Output('histograma', 'figure'),
-            Input("btn_cargar_grafico", "n_clicks"),
-            State("in_cantidad_muestras", "value"),
-            State("in_limite_inferior", "value"),
-            State("in_limite_superior", "value"),
-            State("in_intervalos", "value"),
-            prevent_initial_call=True
+        if None in [n, li, ls, intervalos, n_clicks]:
+            raise PreventUpdate
 
-        )
-        def generar_grafico(n_clicks, n, li, ls, intervalos):
-            print('Click U: ')
-            print(n_clicks)
+        if float(li) > float(ls):
+            return {}
 
-            if None in [n, li, ls, intervalos, n_clicks]:
-                raise PreventUpdate
-
-            if float(li) > float(ls):
-                return {}
-
-            serie = sim.generar_lista_uniforme(int(n), float(li), float(ls))
-            histograma = sim.generar_histograma(serie, intervalos)
-
-            print(histograma)
-            print(serie)
-
-            return histograma
-
-        return 'Distribución Uniforme'
-
+        serie = sim.generar_lista_uniforme(int(n), float(li), float(ls))
     elif distribucion == 'normal':
-        @app.callback(
-            Output('histograma', 'figure'),
-            Input("btn_cargar_grafico", "n_clicks"),
-            State("in_cantidad_muestras", "value"),
-            State("in_media", "value"),
-            State("in_desviacion", "value"),
-            State("in_intervalos", "value"),
-            prevent_initial_call=True
-
-        )
-        def generar_grafico(n_clicks, n, media, desv, intervalos):
-            print('Click N: ')
-            print(n_clicks)
-
-            if None in [n, media, desv, intervalos, n_clicks]:
-                raise PreventUpdate
-
-            serie = sim.generar_lista_normal(int(n), float(desv), float(media))
-            histograma = sim.generar_histograma(serie, intervalos)
-            print(serie)
-            print(histograma)
-
-            return histograma
-
-        return 'Distribución Normal'
-
-    elif distribucion == 'exponencial':
-
-        @app.callback(
-            Output('histograma', 'figure'),
-            Input("btn_cargar_grafico", "n_clicks"),
-            State("in_cantidad_muestras", "value"),
-            State("in_lambda", "value"),
-            State("in_intervalos", "value"),
-            prevent_initial_call=True
-
-        )
-        def generar_grafico(n_clicks, n, lam,  intervalos):
-            print('Click E: ')
-            print(n_clicks)
-
-            if None in [n, lam,  intervalos, n_clicks]:
-                raise PreventUpdate
-
-            serie = sim.generar_lista_exponencial_negativa(int(n), float(lam))
-
-            histograma = sim.generar_histograma(serie, intervalos)
-
-            print(serie)
-            print(histograma)
-
-            return histograma
-
-        return 'Distribucion Exponencial'
+        serie = sim.generar_lista_normal(int(n), float(desv), float(media))
+    elif distribucion == 'expoenencial':
+        serie = sim.generar_lista_exponencial_negativa(int(n), float(lam))
     elif distribucion == 'poisson':
-        @app.callback(
-            Output('histograma', 'figure'),
-            Input("btn_cargar_grafico", "n_clicks"),
-            State("in_cantidad_muestras", "value"),
-            State("in_lambda", "value"),
-            State("in_intervalos", "value"),
-            prevent_initial_call=True
+        serie = sim.generar_lista_poisson(int(n), float(lam))
 
-        )
-        def generar_grafico(n_clicks, n, lam, intervalos):
-            print('Click P: ')
-            print(n_clicks)
+    histograma = sim.generar_histograma(serie, intervalos)
 
-            if None in [n, lam, intervalos, n_clicks]:
-                raise PreventUpdate
+    print(serie)
 
-            serie = sim.generar_lista_poisson(int(n), float(lam))
-
-            histograma = sim.generar_histograma(serie, intervalos)
-
-            print(serie)
-            print(histograma)
-
-            return histograma
-
-        return 'Distribucion Poisson'
+    return histograma
 
 
 
