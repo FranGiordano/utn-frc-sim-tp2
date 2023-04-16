@@ -8,7 +8,7 @@ app = Dash(__name__, suppress_callback_exceptions=True,
 
 server = app.server
 tipo_distribucion = dcc.RadioItems(options=['uniforme', 'normal', 'exponencial', 'poisson'],
-                                   value='',
+                                   value='uniforme',
                                    id='controls-dist')
 
 btn_generar_grafico = dbc.Col(dbc.Button("Generar distribución",
@@ -16,21 +16,21 @@ btn_generar_grafico = dbc.Col(dbc.Button("Generar distribución",
                                          color="primary"),
                               class_name="col-auto align-self-end")
 
-txt_box_cantidad = dbc.Col([
+txt_box_cantidad = dbc.Col(id="form-cantidad", children=[
     dbc.FormFloating([
         dbc.Input(id="in_cantidad_muestras", placeholder="Cantidad de muestras", type="number", max=50000,
                   min=0, step=1, value=10000, required=True),
         dbc.Label("Cantidad de muestras"),
     ])])
 
-txt_box_limite_inferior = dbc.Col([
+txt_box_limite_inferior = dbc.Col(id="form-limite-inferior", children=[
     dbc.FormFloating([
         dbc.Input(id="in_limite_inferior", placeholder="Límite inferior", type="number",
                   value=-10, required=True, step=0.0001),
         dbc.Label("Límite inferior"),
     ])])
 
-txt_box_limite_superior = dbc.Col([
+txt_box_limite_superior = dbc.Col(id="form-limite-superior", children=[
     dbc.FormFloating([
         dbc.Input(id="in_limite_superior", placeholder="Límite superior", type="number",
                   value=10, required=True, step=0.0001),
@@ -47,7 +47,8 @@ txt_box_cantidad_intervalos = dbc.Col(id='form-intervalos',
                                               dbc.Label("Cantidad de intervalos"),
                                           ])])
 
-txt_box_media = dbc.Col(id='form-media', style={"display": "block"},
+
+txt_box_media = dbc.Col(id='form-media',
                         children=[
                             dbc.FormFloating([
                                 dbc.Input(id="in_media", placeholder="Media", type="number",
@@ -55,14 +56,14 @@ txt_box_media = dbc.Col(id='form-media', style={"display": "block"},
                                 dbc.Label("Media"),
                             ])])
 
-txt_box_desviacion = dbc.Col([
+txt_box_desviacion = dbc.Col(id="form-desv", children=[
     dbc.FormFloating([
         dbc.Input(id="in_desviacion", placeholder="Desviación Estándar", type="number",
                   value=1, required=True, step=0.0001),
         dbc.Label("Desviación Estándar"),
     ])])
 
-txt_box_lambda = dbc.Col([
+txt_box_lambda = dbc.Col(id="form-lambda", children=[
     dbc.FormFloating([
         dbc.Input(id="in_lambda", placeholder="Lambda", type="number",
                   value=0, required=True, step=0.0001),
@@ -74,46 +75,57 @@ parametros_uniforme = parametros + [txt_box_limite_inferior, txt_box_limite_supe
 parametros_normal = parametros + [txt_box_media, txt_box_desviacion, btn_generar_grafico]
 
 parametros_exponencial_poisson = parametros + [txt_box_lambda, btn_generar_grafico]
+parametros_todos = parametros + [txt_box_limite_inferior, txt_box_limite_superior,
+                                 txt_box_media, txt_box_desviacion,
+                                 txt_box_lambda, btn_generar_grafico]
 
 app.layout = dbc.Container([
     html.H1('Trabajo Práctico Número 2'),
     tipo_distribucion,
-    dbc.Col(dbc.Button("Seleccionar Distribucion",
-                                         id="btn_cargar_param",
-                                         color="primary"),
-                              class_name="col-auto align-self-end"),
+    # dbc.Col(dbc.Button("Seleccionar Distribucion",
+    #                                      id="btn_cargar_param",
+    #                                      color="primary"),
+    #                           class_name="col-auto align-self-end"),
     html.H2(id="titulo-distribucion"),
-    html.Div(id="parametros"),
+    html.Div(id="parametros", children=parametros_todos),
     dcc.Graph(id="histograma", figure={})
 ])
 
 
 @app.callback(
-    Output('parametros', 'children'),
-    Input('btn_cargar_param', 'n_clicks'),
-    State('controls-dist', 'value')
-)
-def mostrar_parametros(n_clicks, p_value, ):
-    if n_clicks == None:
-        raise PreventUpdate
-    res = parametros
-    if p_value == 'uniforme':
-        res = parametros_uniforme
-    elif p_value == 'normal':
-        res = parametros_normal
-    elif p_value in ('exponencial', 'poisson'):
-        res = parametros_exponencial_poisson
-    return res
 
+    Output('form-limite-inferior', 'style'),
+    Output('form-limite-superior', 'style'),
+    Output('form-media', 'style'),
+    Output('form-desv', 'style'),
+    Output('form-lambda', 'style'),
+    #Input('btn_cargar_param', 'n_clicks'),
+    Input('controls-dist', 'value')
+)
+def mostrar_parametros(p_value):
+    # if n_clicks == None:
+    #     raise PreventUpdate
+    visible = {"display": "block"}
+    oculto = {"display": "none"}
+
+
+    if p_value == 'uniforme':
+        return visible, visible, oculto, oculto, oculto
+    elif p_value == 'normal':
+        return oculto, oculto, visible, visible, oculto
+    elif p_value in ('exponencial', 'poisson'):
+        return oculto, oculto, oculto, oculto, visible
+    return oculto, oculto, oculto, oculto, oculto
 
 @app.callback(
     Output('titulo-distribucion', 'children'),
-    Input('btn_cargar_param', 'n_clicks'),
-    State('controls-dist', 'value')
+   # Input('btn_cargar_param', 'n_clicks'),
+    Input('controls-dist', 'value')
 )
-def funcionalidad_generar(n_clicks, distribucion):
-    if n_clicks == None:
-        raise PreventUpdate
+def funcionalidad_generar( distribucion):
+    print(distribucion)
+    # if n_clicks == None:
+    #     raise PreventUpdate
     if distribucion == 'uniforme':
         @app.callback(
             Output('histograma', 'figure'),
@@ -122,7 +134,6 @@ def funcionalidad_generar(n_clicks, distribucion):
             State("in_limite_inferior", "value"),
             State("in_limite_superior", "value"),
             State("in_intervalos", "value"),
-
             prevent_initial_call=True
 
         )
@@ -160,8 +171,6 @@ def funcionalidad_generar(n_clicks, distribucion):
         def generar_grafico(n_clicks, n, media, desv, intervalos):
             print('Click N: ')
             print(n_clicks)
-            if distribucion != 'normal':
-                return no_update
 
             if None in [n, media, desv, intervalos, n_clicks]:
                 raise PreventUpdate
@@ -174,12 +183,64 @@ def funcionalidad_generar(n_clicks, distribucion):
             return histograma
 
         return 'Distribución Normal'
-    elif distribucion == 'exponencial':
-        # FALTA EL CALLBACK Y LA FUNCIONALIDAD DE LA DISTRIBUCION exponencial
 
-        return 'Distribución Exponencial'
+    elif distribucion == 'exponencial':
+
+        @app.callback(
+            Output('histograma', 'figure'),
+            Input("btn_cargar_grafico", "n_clicks"),
+            State("in_cantidad_muestras", "value"),
+            State("in_lambda", "value"),
+            State("in_intervalos", "value"),
+            prevent_initial_call=True
+
+        )
+        def generar_grafico(n_clicks, n, lam,  intervalos):
+            print('Click E: ')
+            print(n_clicks)
+
+            if None in [n, lam,  intervalos, n_clicks]:
+                raise PreventUpdate
+
+            serie = sim.generar_lista_exponencial_negativa(int(n), float(lam))
+
+            histograma = sim.generar_histograma(serie, intervalos)
+
+            print(serie)
+            print(histograma)
+
+            return histograma
+
+        return 'Distribucion Exponencial'
     elif distribucion == 'poisson':
-        return 'Distribución Poisson'
+        @app.callback(
+            Output('histograma', 'figure'),
+            Input("btn_cargar_grafico", "n_clicks"),
+            State("in_cantidad_muestras", "value"),
+            State("in_lambda", "value"),
+            State("in_intervalos", "value"),
+            prevent_initial_call=True
+
+        )
+        def generar_grafico(n_clicks, n, lam, intervalos):
+            print('Click P: ')
+            print(n_clicks)
+
+            if None in [n, lam, intervalos, n_clicks]:
+                raise PreventUpdate
+
+            serie = sim.generar_lista_poisson(int(n), float(lam))
+
+            histograma = sim.generar_histograma(serie, intervalos)
+
+            print(serie)
+            print(histograma)
+
+            return histograma
+
+        return 'Distribucion Poisson'
+
+
 
 
 if __name__ == '__main__':
