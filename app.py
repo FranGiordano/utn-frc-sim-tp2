@@ -66,7 +66,7 @@ txt_box_desviacion = dbc.Col(id="form-desv", children=[
 txt_box_lambda = dbc.Col(id="form-lambda", children=[
     dbc.FormFloating([
         dbc.Input(id="in_lambda", placeholder="Lambda", type="number",
-                  value=0.5, required=True, step=0.0001),
+                  value=5, required=True, step=0.0001),
         dbc.Label("Lambda"),
     ])])
 
@@ -125,8 +125,8 @@ def mostrar_parametros(p_value):
     State("in_limite_inferior", "value"),
     State("in_limite_superior", "value"),
     State("in_media", "value"),
-    State("in-desviacion", "value"),
-    State("in-lambda", "value"),
+    State("in_desviacion", "value"),
+    State("in_lambda", "value"),
     State("in_intervalos", "value"),
 
     prevent_initial_call=True
@@ -147,14 +147,15 @@ def generar_grafico(n_clicks,distribucion, n, li, ls, media, desv, lam, interval
         serie = sim.generar_lista_uniforme(int(n), float(li), float(ls))
     elif distribucion == 'normal':
         serie = sim.generar_lista_normal(int(n), float(desv), float(media))
-    elif distribucion == 'expoenencial':
+    elif distribucion == 'exponencial':
         serie = sim.generar_lista_exponencial_negativa(int(n), float(lam))
     elif distribucion == 'poisson':
         serie = sim.generar_lista_poisson(int(n), float(lam))
 
+    print(serie)
     histograma = sim.generar_histograma(serie, intervalos)
 
-    print(serie)
+
 
     return histograma
 
