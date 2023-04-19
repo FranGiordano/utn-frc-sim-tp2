@@ -20,7 +20,7 @@ layout = dbc.Container([
             html.Tr([html.Td("72905"), html.Td("Flores, Jorge Martin")]),
             html.Tr([html.Td("81757"), html.Td("Giordano, Franco Omar")]),
             html.Tr([html.Td("86120"), html.Td("Grande, Tamara Araceli")]),
-            html.Tr([html.Td("86425"), html.Td("Gutiierrez, Ezequiel")]),
+            html.Tr([html.Td("86425"), html.Td("Gutierrez, Ezequiel")]),
             html.Tr([html.Td("85461"), html.Td("Molina, Juan Ignacio")])
         ])
     ], class_name="w-auto", striped=True, bordered=True),

@@ -62,7 +62,7 @@ def generar_parametros():
 
         dbc.Col(id="form-cantidad", children=[
             dbc.FormFloating([
-                dbc.Input(id="in_cantidad_muestras", placeholder="Cantidad de muestras", type="number", max=1000000,
+                dbc.Input(id="in_cantidad_muestras", placeholder="Cantidad de muestras", type="number", max=50000,
                           min=0, step=1, value=10000, required=True),
                 dbc.Label("Cantidad de muestras"),
             ])]),
@@ -109,7 +109,7 @@ def generar_parametros():
         dbc.Col(id="form-lambda", children=[
             dbc.FormFloating([
                 dbc.Input(id="in_lambda", placeholder="Lambda", type="number",
-                          value=5, required=True, step=0.0001),
+                          value=5, required=True, step=0.0001, min=0.0001),
                 dbc.Label("Lambda"),
             ])], style={"display": "none"}),
 
@@ -186,7 +186,8 @@ def crear_columna_chi2(datos_chi2):
     tabla = tabla.round(4).astype(str)
 
     if datos_chi2["Grados de libertad"] <= 0:
-        alerta = dbc.Alert("La cantidad de muestras no es suficiente para conseguir el χ2 tabulado", color="danger")
+        alerta = dbc.Alert("La cantidad de muestras no es suficiente para conseguir el χ2 tabulado ó se presentó un "
+                           "error de cálculo", color="danger")
     elif datos_chi2["χ2 calculado"] <= datos_chi2["χ2 tabulado"]:
         alerta = dbc.Alert("El test de χ2 no rechaza la hipótesis nula", color="success")
     else:

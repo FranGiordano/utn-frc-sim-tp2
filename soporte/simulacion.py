@@ -107,11 +107,12 @@ def generar_histograma_poisson(muestras):
 
     # Constantes
 
+    minimo = min(muestras)
     maximo = max(muestras)
 
     # Vectores
 
-    x = np.arange(0, maximo+1)
+    x = np.arange(minimo, maximo+1)
     frecuencias = [muestras.count(i) for i in x]
 
     # Creación de histograma
@@ -202,12 +203,13 @@ def calcular_frecuencias_poisson(muestras):
     # Constantes
 
     maximo = max(muestras)
+    minimo = min(muestras)
     n = len(muestras)
     lam = sum(muestras) / n
 
     # Vectores
 
-    x = np.arange(0, maximo+1)
+    x = np.arange(minimo, maximo+1)
     fo = [(muestras == i).sum() for i in x]
     prob = lam ** x * np.exp(-lam) / factorial(x)
     fe = np.round(prob * n, 0).astype(int)
