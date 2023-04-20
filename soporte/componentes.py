@@ -1,9 +1,14 @@
 from dash import dcc, html
 import dash_bootstrap_components as dbc
-import pandas as pd
 
 
-def generar_barra_navegacion():
+def generar_barra_navegacion() -> dbc.Navbar:
+    """
+    Genera una barra de navegación para la página web.
+
+    :return: La barra de navegación.
+    :rtype: dbc.Navbar
+    """
     barra_navegacion = dbc.Navbar(
         dbc.Container([
 
@@ -42,7 +47,14 @@ def generar_barra_navegacion():
     return barra_navegacion
 
 
-def generar_tipos_distribuciones():
+def generar_tipos_distribuciones() -> dbc.InputGroup:
+    """
+    Genera un dropdown para la selección del tipo de distribución.
+
+    :return: El dropdown de distribuciones.
+    :rtype: dbc.InputGroup
+    """
+
     tipo_distribucion = dbc.InputGroup([
         dbc.Select(
             id="controls-dist",
@@ -60,7 +72,13 @@ def generar_tipos_distribuciones():
     return tipo_distribucion
 
 
-def generar_parametros():
+def generar_parametros() -> dbc.Row:
+    """
+    Genera una fila con los forms de parámetros y el botón de generar gráfico.
+
+    :return: La fila con los forms de parámetros y el botón de generar gráfico.
+    :rtype: dbc.Row
+    """
     parametros = dbc.Row([
 
         dbc.Col(id="form-cantidad", children=[
@@ -125,69 +143,68 @@ def generar_parametros():
     return parametros
 
 
-def generar_visualizacion(histograma, datos_frecuencias, datos_chi2, datos_ks=None):
+def generar_visualizacion(histograma, muestras, datos_frecuencias, datos_chi2, datos_ks=None) -> html.Div:
+    """
+    Genera las visualizaciones a los resultados procesados.
+
+    :param histograma: Figura del histograma.
+    :type histograma: go.Figure
+    :param muestras: Lista de elementos de la muestra.
+    :type muestras: list[float]
+    :param datos_frecuencias: Diccionario con los datos de frecuencias.
+    :type datos_frecuencias: dict[str, list[float]]
+    :param datos_chi2: Diccionario con los datos de la prueba de chi2.
+    :type datos_chi2: dict[str, float]
+    :param datos_ks: Diccionario con los datos de la prueba de ks.
+    :type datos_ks: dict[str, float]
+    :return: Un div con las visualizaciones.
+    :rtype: html.Div
+    """
 
     visualizacion = html.Div([
 
-        # Sección 1: Histograma
+        # Histograma
 
         dcc.Graph(figure=histograma),
 
-        dbc.Row([
+        dbc.Accordion([
 
-            # Sección 2: Tabla de frecuencias
+            # Frecuencias observadas y esperadas
 
-            crear_columna_frecuencias(datos_frecuencias),
+            dbc.AccordionItem(html.Div(crear_tabla(datos_frecuencias), className="table-container"),
+                              title="Frecuencias observadas y esperadas"),
 
-            # Sección 3: Pruebas de bondad
+            # Pruebas de ajuste
 
-            dbc.Col([
-
-                html.Center(html.H3("Pruebas de bondad de ajuste")),
-                html.Br(),
-
+            dbc.AccordionItem([
                 dbc.Row([
-
-                    # Sección 3a: Chi2
-
                     crear_columna_chi2(datos_chi2),
-
-                    # Sección 3b: K-S
-
-                    crear_columna_ks(datos_ks) if datos_ks is not None else dbc.Col(
-                        class_name="d-none"),
+                    crear_columna_ks(datos_ks) if datos_ks is not None else dbc.Col(class_name="d-none"),
                 ])
-            ])
-        ])
+            ], title="Pruebas de bondad de ajuste"),
+
+            # Números generados
+
+            dbc.AccordionItem(html.Div(html.P([str(round(i, 2)) + " " for i in muestras]), className="table-container"),
+                              title="Números generados"),
+
+        ], start_collapsed=True, always_open=True),
     ])
 
     return visualizacion
 
 
-def crear_columna_frecuencias(datos_frecuencias):
+def crear_columna_chi2(datos_chi2) -> dbc.Col:
+    """
+    Genera la columna correspondiente a las pruebas de chi2
 
-    tabla = pd.DataFrame(datos_frecuencias)
-    tabla = tabla.set_index("#")
-    tabla = tabla.round(4).astype(str)
+    :param datos_chi2: Diccionario con los datos de la prueba de chi2.
+    :type datos_chi2: dict[str, float]
+    :return: La columna con las visualizaciones correspondientes.
+    :rtype: dbc.Col
+    """
 
-    columna_frecuencia = dbc.Col([
-        html.Center(html.H3("Tabla de frecuencias")),
-        html.Br(),
-        dbc.Table.from_dataframe(tabla, class_name="w-auto mx-auto", striped=True, bordered=True, responsive=True,
-                                 index=True)
-    ])
-
-    return columna_frecuencia
-
-
-def crear_columna_chi2(datos_chi2):
-
-    tabla = pd.DataFrame({
-        "Parámetro": datos_chi2.keys(),
-        "Valor": datos_chi2.values()
-    })
-
-    tabla = tabla.round(4).astype(str)
+    # Se crea una alerta en base al resultado de la prueba
 
     if datos_chi2["Grados de libertad"] <= 0:
         alerta = dbc.Alert("La cantidad de muestras no es suficiente para conseguir el χ2 tabulado ó se presentó un "
@@ -199,10 +216,11 @@ def crear_columna_chi2(datos_chi2):
         alerta = dbc.Alert(
             "El test de χ2 rechaza la hipótesis nula", color="danger")
 
+    # Se genera una columna con: título, alerta y tabla
+
     columna_chi2 = dbc.Col([
         html.Center(html.H4("Chi-cuadrado")),
-        dbc.Table.from_dataframe(
-            tabla, class_name="w-auto mx-auto", striped=True, bordered=True),
+        crear_tabla(datos_chi2),
         alerta
     ])
 
@@ -210,13 +228,16 @@ def crear_columna_chi2(datos_chi2):
 
 
 def crear_columna_ks(datos_ks):
+    """
+    Genera la columna correspondiente a las pruebas de ks
 
-    tabla = pd.DataFrame({
-        "Parámetro": datos_ks.keys(),
-        "Valor": datos_ks.values()
-    })
+    :param datos_ks: Diccionario con los datos de la prueba de ks.
+    :type datos_ks: dict[str, float]
+    :return: La columna con las visualizaciones correspondientes.
+    :rtype: dbc.Col
+    """
 
-    tabla = tabla.round(4).astype(str)
+    # Se crea una alerta en base al resultado de la prueba
 
     if datos_ks["K-S calculado"] <= datos_ks["K-S tabulado"]:
         alerta = dbc.Alert(
@@ -225,11 +246,54 @@ def crear_columna_ks(datos_ks):
         alerta = dbc.Alert(
             "El test de K-S rechaza la hipótesis nula", color="danger")
 
+    # Se genera una columna con: título, alerta y tabla
+
     columna_ks = dbc.Col([
         html.Center(html.H4("Kolmogorov-Smirnov")),
-        dbc.Table.from_dataframe(
-            tabla, class_name="w-auto mx-auto", striped=True, bordered=True),
+        crear_tabla(datos_ks),
         alerta
     ])
 
     return columna_ks
+
+
+def crear_tabla(diccionario) -> dbc.Table:
+    """
+    Genera una tabla en base a los datos de un diccionario.
+
+    :param diccionario: Un diccionario con keys de tipo str y values de tipo list[float] o float
+    :type diccionario: Union[dict[str,list[float]], dict[str, float]]
+    :return: La tabla con los valores correspondientes.
+    :rtype: dbc.Table
+    """
+
+    # Se crea el encabezado de la tabla
+
+    table_header = [html.Thead(html.Tr([html.Th(i) for i in diccionario.keys()]))]
+
+    # Se crea el cuerpo de la tabla
+
+    rows = []
+    lista_body = list(diccionario.values())
+
+    # Para la creación de las filas se itera sobre las listas contenidas en cada value del diccionario. En caso de que
+    # el value esté dado por un escalar y no por una lista, se convierte este escalar a lista:
+
+    try:
+        n = len(lista_body[0])
+    except TypeError:
+        lista_body = [[escalar] for escalar in lista_body]
+        n = 1
+
+    for i in range(n):
+        row = html.Tr([html.Td(lista[i]) for lista in lista_body])
+        rows.append(row)
+
+    table_body = [html.Tbody(rows)]
+
+    # Creación de la tabla
+
+    table = dbc.Table(table_header + table_body, class_name="w-auto mx-auto", striped=True, bordered=True,
+                      responsive=True)
+
+    return table

@@ -1,19 +1,49 @@
 import math
 import random as rd
 import plotly.graph_objs as go
-from scipy.special import factorial
 from scipy.stats import kstwo, chi2
 
 
-def generar_serie_uniforme(n, a, b):
+# =====================================================================================================================
+#
+# GENERADORES
+#
+# =====================================================================================================================
+
+def generar_serie_uniforme(n, a, b) -> list[float]:
+    """
+    Genera una serie de n números aleatorios manteniendo una distribución uniforme.
+
+    :param n: Cantidad de elementos a generar en la serie.
+    :type n: int
+    :param a: Límite inferior de la distribución.
+    :type a: float
+    :param b: Límite superior de la distribución.
+    :type b: float
+    :return: Una serie de n números con distribución uniforme.
+    :rtype: list[float]
+    """
+
     if a > b:
         a, b = b, a
     return [rd.random() * (b - a) + a for _ in range(n)]
 
 
-def generar_serie_normal(cantidad, desviacion, media):
+def generar_serie_normal(n, desviacion, media) -> list[float]:
+    """
+    Genera una serie de n números aleatorios manteniendo una distribución normal.
+
+    :param n: Cantidad de elementos a generar en la serie.
+    :type n: int
+    :param desviacion: La desviación estándar de la distribución.
+    :type desviacion: float
+    :param media: La media de la distribución.
+    :type media: float
+    :return: Una serie de n números aleatorios con distribución normal.
+    :rtype: list[float]
+    """
     numeros_aleatorios = []
-    for i in range(cantidad):
+    for i in range(n):
         r1 = rd.random()
         r2 = rd.random()
         while r1 == 0:
@@ -23,11 +53,33 @@ def generar_serie_normal(cantidad, desviacion, media):
     return numeros_aleatorios
 
 
-def generar_serie_exponencial_negativa(n, lam):
+def generar_serie_exponencial_negativa(n, lam) -> list[float]:
+    """
+    Genera una serie de n números aleatorios manteniendo una distribución exponencial negativa.
+
+    :param n: Cantidad de elementos a generar en la serie.
+    :type n: int
+    :param lam: El valor Lambda de la distribución.
+    :type lam: float
+    :return: Una serie de n números aleatorios con distribución exponencial negativa.
+    :rtype: list[float]
+    """
+
     return [-(1 / lam) * math.log(1 - rd.random()) for _ in range(n)]
 
 
-def generar_serie_poisson(n, lam):
+def generar_serie_poisson(n, lam) -> list[int]:
+    """
+    Genera una serie de n números aleatorios manteniendo una distribución de Poisson.
+
+    :param n: Cantidad de elementos a generar en la serie.
+    :type n: int
+    :param lam: El valor Lambda de la distribución.
+    :type lam: float
+    :return: Una serie de n números aleatorios con distribución de Poisson.
+    :rtype: list[int]
+    """
+
     serie = []
     for i in range(n):
         p = 1
@@ -41,8 +93,23 @@ def generar_serie_poisson(n, lam):
     return serie
 
 
-def generar_histograma_continua(muestras, n_barras):
+# =====================================================================================================================
+#
+# HISTOGRAMAS
+#
+# =====================================================================================================================
 
+def generar_histograma_continua(muestras, n_barras) -> go.Figure:
+    """
+    Genera un histograma con n_barras intervalos para una muestra con distribución continua.
+
+    :param muestras: Lista de números a contar.
+    :type muestras: list[float]
+    :param n_barras: Cantidad de intervalos a crear.
+    :type n_barras: int
+    :return: Figura con el histograma generado.
+    :rtype: go.Figure
+    """
     # Constantes
 
     maximo = max(muestras)
@@ -80,7 +147,15 @@ def generar_histograma_continua(muestras, n_barras):
     return fig
 
 
-def generar_histograma_poisson(muestras):
+def generar_histograma_poisson(muestras) -> go.Figure:
+    """
+    Genera un histograma para una muestra con distribución de Poisson.
+
+    :param muestras: Lista de números a contar.
+    :type muestras: list[int]
+    :return: Figura con el histograma generado.
+    :rtype: go.Figure
+    """
 
     # Constantes
 
@@ -89,7 +164,7 @@ def generar_histograma_poisson(muestras):
 
     # Vectores
 
-    eje_x = [i for i in range(minimo, maximo+1)]
+    eje_x = [i for i in range(minimo, maximo + 1)]
     frecuencias = [muestras.count(i) for i in eje_x]
 
     # Creación de histograma
@@ -119,7 +194,27 @@ def generar_histograma_poisson(muestras):
     return fig
 
 
-def calcular_frecuencias_continua(muestras, n_barras, distribucion):
+# =====================================================================================================================
+#
+# CÁLCULOS DE FRECUENCIA OBSERVADA Y ESPERADA
+#
+# =====================================================================================================================
+
+def calcular_frecuencias_continua(muestras, n_barras, distribucion) -> dict[str, list[any]]:
+    """
+    Calcula las frecuencias observadas y esperadas para distribuciones continuas.
+
+    :param muestras: Lista de números a contar.
+    :type muestras: list[float]
+    :param n_barras: Cantidad de intervalos.
+    :type n_barras: int
+    :param distribucion: Tipo de distribución.
+    :type distribucion: str
+    :return: Un diccionario con número de intervalo, límite inferior, límite superior, frecuencia observada y esperada.
+    :rtype: dict[str, list[any]]
+    :raises NameError: Cuando la distribución ingresada no existe dentro de la función.
+    """
+
     # Constantes
 
     n = len(muestras)
@@ -174,22 +269,30 @@ def calcular_frecuencias_continua(muestras, n_barras, distribucion):
                 fe.append(prob * n)
 
         case _:
-            raise Exception
+            raise NameError
 
     # Asignación de vectores en una tabla única
 
     diccionario = {
         "#": range(1, n_barras + 1),
-        "Desde": li,
-        "Hasta": ls,
-        "Frecuencia observada": fo,
-        "Frecuencia esperada": fe
+        "Desde": [round(i, 4) for i in li],
+        "Hasta": [round(i, 4) for i in ls],
+        "Frecuencia observada": [int(i) for i in fo],
+        "Frecuencia esperada": [round(i, 4) for i in fe]
     }
 
     return diccionario
 
 
-def calcular_frecuencias_poisson(muestras):
+def calcular_frecuencias_poisson(muestras) -> [str, list[int]]:
+    """
+    Calcula las frecuencias observadas y esperadas para distribuciones de Poisson.
+
+    :param muestras: Lista de números a contar.
+    :type muestras: list[int]
+    :return: Un diccionario con número de intervalo, valor, frecuencia observada y esperada.
+    :rtype: dict[str, list[int]]
+    """
 
     # Constantes
 
@@ -200,11 +303,11 @@ def calcular_frecuencias_poisson(muestras):
 
     # Vectores
 
-    x = [i for i in range(minimo, maximo+1)]
+    x = [i for i in range(minimo, maximo + 1)]
     fo = [muestras.count(i) for i in x]
     fe = []
     for i in x:
-        prob = lam ** i * math.exp(-lam) / factorial(i)
+        prob = lam ** i * math.exp(-lam) / math.factorial(i)
         fe.append(int(round(prob * n, 0)))
 
     # Asignación de vectores en un diccionario
@@ -219,8 +322,26 @@ def calcular_frecuencias_poisson(muestras):
     return diccionario
 
 
-def calcular_chi2(fo, fe, distribucion):
+# =====================================================================================================================
+#
+# PRUEBAS DE BONDAD DE AJUSTE
+#
+# =====================================================================================================================
 
+def calcular_chi2(fo, fe, distribucion) -> dict[str, float]:
+    """
+    Calcula el valor de chi2 para las frecuencias dadas y el valor de chi2 según la librería scipy.stats.
+
+    :param fo: Lista de frecuencias observadas.
+    :type fo: list[int]
+    :param fe: Lista de frecuencias esperadas.
+    :type fe: list[float]
+    :param distribucion: Tipo de distribución.
+    :type distribucion: str
+    :return: Un diccionario con Nivel de confianza, grado de libertad, chi2 tabulado y calculado.
+    :rtype: dict[str, float]
+    :raises NameError: Cuando la distribución ingresada no existe dentro de la función.
+    """
     # Agrupamiento de frecuencias de forma que cada valor de frecuencias esperadas sea >= 5:
 
     nuevo_fo = []
@@ -260,7 +381,10 @@ def calcular_chi2(fo, fe, distribucion):
 
     m = {"U": 0, "EN": 1, "N": 2, "P": 1}
     k = len(fo)
-    grados_libertad = k - 1 - m[distribucion]
+    try:
+        grados_libertad = k - 1 - m[distribucion]
+    except KeyError:
+        raise NameError
     nivel_de_confianza = 0.95
     chi2_tabulado = chi2.ppf(nivel_de_confianza, grados_libertad)
 
@@ -269,14 +393,24 @@ def calcular_chi2(fo, fe, distribucion):
     diccionario = {
         "Nivel de confianza": nivel_de_confianza,
         "Grados de libertad": grados_libertad,
-        "χ2 calculado": chi2_calculado,
-        "χ2 tabulado": chi2_tabulado
+        "χ2 calculado": round(chi2_calculado, 4),
+        "χ2 tabulado": round(chi2_tabulado, 4)
     }
 
     return diccionario
 
 
-def calcular_ks(fo, fe):
+def calcular_ks(fo, fe) -> dict[str, float]:
+    """
+    Calcula el valor de ks para las frecuencias dadas y el valor de ks según la librería scipy.stats.
+
+    :param fo: Lista de frecuencias observadas.
+    :type fo: list[int]
+    :param fe: Lista de frecuencias esperadas.
+    :type fe: list[float]
+    :return: Un diccionario con Nivel de confianza, cantidad de muestras, ks tabulado y calculado.
+    :rtype: dict[str, float]
+    """
 
     # Constantes
 
@@ -302,8 +436,8 @@ def calcular_ks(fo, fe):
     diccionario = {
         "Nivel de confianza": nivel_de_confianza,
         "Cantidad de muestras": n,
-        "K-S calculado": ks_calculado,
-        "K-S tabulado": ks_tabulado
+        "K-S calculado": round(ks_calculado, 4),
+        "K-S tabulado": round(ks_tabulado, 4)
     }
 
     return diccionario

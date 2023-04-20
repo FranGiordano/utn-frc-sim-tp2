@@ -18,7 +18,8 @@ layout = dbc.Container([
     html.Br(),
     dbc.Alert("Distribución no generada. Revise nuevamente los datos.", color="danger", dismissable=True,
               id="alerta", is_open=False),
-    dbc.Spinner(id="sp_resultados", children={}, color="primary", show_initially=False)
+    dbc.Spinner(id="sp_resultados", children={}, color="primary", show_initially=False),
+    html.Br()
 ])
 
 
@@ -34,6 +35,13 @@ layout = dbc.Container([
     Input('controls-dist', 'value')
 )
 def mostrar_parametros(p_value):
+    """
+    Muestra u oculta los forms de parámetros dependiendo el tipo de distribución seleccionado.
+
+    :param p_value: El tipo de distribución seleccionado.
+    :return: La propiedad de visible o invisible para cada uno de los forms.
+    """
+
     visible = {"display": "block"}
     oculto = {"display": "none"}
     match p_value:
@@ -66,6 +74,22 @@ def mostrar_parametros(p_value):
     prevent_initial_call=True
 )
 def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, intervalos):
+    """
+    Lee los parámetros de los forms y el tipo de distribución, y genera y muestra los resultados en base a dichos
+    parámetros.
+
+    :param n_clicks: Cantidad de clicks del botón "btn-cargar-gráfico" (NO SE USA)
+    :param distribucion: Tipo de distribución.
+    :param n: Cantidad de muestras.
+    :param li: Límite inferior (aplicado en distribución uniforme).
+    :param ls: Límite superior (aplicado en distribución uniforme).
+    :param media: Media (aplicado en distribución normal).
+    :param desv: Desviación estándar (aplicado en distribución exponencial negativa).
+    :param lam: Lambda (aplicado en distribución exponencial negativa y de Poisson).
+    :param intervalos: Cantidad de intervalos
+    :return: Una alerta si hubo un error o las visualizaciones correspondientes si la función se procesó con éxito.
+    """
+
     # Chequeo de formularios y generación de muestras por distribución
     match distribucion:
 
@@ -77,7 +101,7 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
             if float(li) > float(ls):
                 return True, no_update
 
-            serie = sim.generar_serie_uniforme(int(n), float(li), float(ls))
+            serie = sim.generar_serie_uniforme(n, float(li), float(ls))
 
         case "N":
 
@@ -127,6 +151,6 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
             return True, no_update
 
     # Generación de visualizacion
-    visualizacion = generar_visualizacion(histograma, datos_frecuencia, datos_chi2, datos_ks)
+    visualizacion = generar_visualizacion(histograma, serie, datos_frecuencia, datos_chi2, datos_ks)
 
     return False, visualizacion
