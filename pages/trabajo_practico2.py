@@ -1,6 +1,7 @@
 import dash
-from dash import Input, Output, State, no_update, callback, html
 import dash_bootstrap_components as dbc
+from dash import Input, Output, State, no_update, callback, html
+
 import soporte.simulacion as sim
 from soporte.componentes import generar_tipos_distribuciones, generar_parametros, generar_visualizacion
 

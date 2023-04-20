@@ -1,5 +1,6 @@
 import math
 import random as rd
+
 import plotly.graph_objs as go
 from scipy.stats import kstwo, chi2
 
@@ -313,7 +314,7 @@ def calcular_frecuencias_poisson(muestras) -> [str, list[int]]:
     # Asignación de vectores en un diccionario
 
     diccionario = {
-        "#": x,
+        "#": [i for i in range(len(fo))],
         "Valor": x,
         "Frecuencia observada": fo,
         "Frecuencia esperada": fe

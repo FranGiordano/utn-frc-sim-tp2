@@ -7,6 +7,12 @@ H1, H2, H3, H4 {
     font-family: "Rubik", sans-serif;
 }
 
+.columnas {
+  columns: 5;
+  -webkit-columns: 5;
+  -moz-columns: 5;
+}
+
 .table-container {
     height: 500px;
     overflow-y: scroll;

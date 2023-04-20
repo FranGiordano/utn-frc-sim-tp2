@@ -1,5 +1,5 @@
-from dash import dcc, html
 import dash_bootstrap_components as dbc
+from dash import dcc, html
 
 
 def generar_barra_navegacion() -> dbc.Navbar:
@@ -18,7 +18,7 @@ def generar_barra_navegacion() -> dbc.Navbar:
                         dbc.Col(
                             html.Img(src="/assets/icons/simulation.png", height="30px")),
                         dbc.Col(dbc.NavbarBrand("UTN FRC - Simulación",
-                                className="ms-2", href="/")),
+                                                className="ms-2", href="/")),
                     ],
                     align="center",
                     className="g-0",
@@ -185,8 +185,11 @@ def generar_visualizacion(histograma, muestras, datos_frecuencias, datos_chi2, d
 
             # Números generados
 
-            dbc.AccordionItem(html.Div(html.P([str(round(i, 2)) + " " for i in muestras]), className="table-container"),
-                              title="Números generados"),
+            dbc.AccordionItem([
+                html.Div([
+                    html.Ul([html.Li(str(round(n, 2))) for n in muestras[:1000]], className="columnas")
+                ], className="table-container"),
+            ], title="Lista de 1000 primeros números generados"),
 
         ], start_collapsed=True, always_open=True),
     ])
