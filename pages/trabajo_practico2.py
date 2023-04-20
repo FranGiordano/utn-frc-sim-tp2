@@ -77,28 +77,28 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
             if float(li) > float(ls):
                 return True, no_update
 
-            serie = sim.generar_lista_uniforme(int(n), float(li), float(ls))
+            serie = sim.generar_serie_uniforme(int(n), float(li), float(ls))
 
         case "N":
 
             if None in [n, media, desv, intervalos]:
                 return True, no_update
 
-            serie = sim.generar_numeros_aleatorios_normal(int(n), float(desv), float(media))
+            serie = sim.generar_serie_normal(int(n), float(desv), float(media))
 
         case "EN":
 
             if None in [n, lam, intervalos]:
                 return True, no_update
 
-            serie = sim.generar_lista_exponencial_negativa(int(n), float(lam))
+            serie = sim.generar_serie_exponencial_negativa(int(n), float(lam))
 
         case "P":
 
             if None in [n, lam]:
                 return True, no_update
 
-            serie = sim.generar_lista_poisson(int(n), float(lam))
+            serie = sim.generar_serie_poisson(int(n), float(lam))
 
         case _:
             return True, no_update

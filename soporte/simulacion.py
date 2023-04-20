@@ -1,56 +1,33 @@
-import random as rd
 import math
+import random as rd
 import plotly.graph_objs as go
-import numpy as np
 from scipy.special import factorial
 from scipy.stats import kstwo, chi2
 
 
-def generar_lista_uniforme(n, a, b):
+def generar_serie_uniforme(n, a, b):
     if a > b:
         a, b = b, a
-    serie = []
-    for i in range(n):
-        x = a + (b - a) * rd.random()
-        serie.append(x)
-    return serie
+    return [rd.random() * (b - a) + a for _ in range(n)]
 
 
-def generar_numeros_aleatorios_normal(cantidad, desviacion, media):
+def generar_serie_normal(cantidad, desviacion, media):
     numeros_aleatorios = []
     for i in range(cantidad):
         r1 = rd.random()
         r2 = rd.random()
+        while r1 == 0:
+            r1 = rd.random()
         z = math.sqrt(-2.0 * math.log(r1)) * math.cos(2 * math.pi * r2)
         numeros_aleatorios.append(media + desviacion * z)
     return numeros_aleatorios
 
 
-def generar_lista_exponencial_negativa(n, lam):
-    serie = []
-    for i in range(n):
-        x = -(1 / lam) * math.log(1 - rd.random())
-        serie.append(x)
-    return serie
+def generar_serie_exponencial_negativa(n, lam):
+    return [-(1 / lam) * math.log(1 - rd.random()) for _ in range(n)]
 
 
-def generar_lista_normal(n, desv_est, media):
-    serie = []
-    i = 0
-    while i < n:
-        rd1 = rd.random()
-        rd2 = rd.random()
-        n1 = math.sqrt(-2 * math.log(rd1)) * math.cos(2 * math.pi * rd2) * desv_est + media
-        n2 = math.sqrt(-2 * math.log(rd1)) * math.sin(2 * math.pi * rd2) * desv_est + media
-        serie.append(n1)
-        serie.append(n2)
-        i += 2
-    if n % 2 == 1:
-        serie.pop()
-    return serie
-
-
-def generar_lista_poisson(n, lam):
+def generar_serie_poisson(n, lam):
     serie = []
     for i in range(n):
         p = 1
@@ -112,14 +89,14 @@ def generar_histograma_poisson(muestras):
 
     # Vectores
 
-    x = np.arange(minimo, maximo+1)
-    frecuencias = [muestras.count(i) for i in x]
+    eje_x = [i for i in range(minimo, maximo+1)]
+    frecuencias = [muestras.count(i) for i in eje_x]
 
     # Creación de histograma
 
     fig = go.Figure(
         data=go.Bar(
-            x=x,
+            x=eje_x,
             y=frecuencias,
             marker_line=dict(width=1, color="black")
         ),
@@ -143,20 +120,33 @@ def generar_histograma_poisson(muestras):
 
 
 def calcular_frecuencias_continua(muestras, n_barras, distribucion):
-
-    # Conversión de lista a numpy array
-
-    muestras = np.array(muestras)
-
     # Constantes
 
     n = len(muestras)
+    maximo = max(muestras)
+    minimo = min(muestras)
+    rango = (maximo - minimo) / n_barras
 
-    # Vectores
+    # Se establecen límites inferiores y superiores y se cuentan las frecuencias observadas
 
-    fo, limites = np.histogram(muestras, n_barras)
-    li = limites[:-1]
-    ls = limites[1:]
+    li = [minimo]
+    ls = [minimo + rango]
+
+    for i in range(1, n_barras):
+        li.append(ls[i - 1])
+        ls.append(ls[i - 1] + rango)
+
+    fo = [0] * n_barras
+
+    for i in muestras:
+        for j in range(n_barras):
+            if li[j] <= i < ls[j]:
+                fo[j] += 1
+                break
+
+    # Como el loop anterior no tiene en cuenta al valor máximo, se lo añade en la siguiente línea
+
+    fo[-1] += muestras.count(maximo)
 
     # Cálculo de frecuencia esperada de acuerdo a tipo de distribución
 
@@ -167,16 +157,21 @@ def calcular_frecuencias_continua(muestras, n_barras, distribucion):
 
         case "N":
             media = sum(muestras) / n
-            desv_est = np.sqrt(sum((muestras-media)**2) / (n-1))
-            marca = (ls + li) / 2
-            prob = (1/(desv_est * np.sqrt(2*np.pi))) * np.exp(-(1/2)*((marca-media)/desv_est)**2) * (ls-li)
-            fe = prob * n
+            desv_est = math.sqrt(sum([(i - media) ** 2 for i in muestras]) / (n - 1))
+            marca = [(li[i] + ls[i]) / 2 for i in range(n_barras)]
+            fe = []
+            for i in range(n_barras):
+                prob = (1 / (desv_est * math.sqrt(2 * math.pi))) * math.exp(
+                    -(1 / 2) * ((marca[i] - media) / desv_est) ** 2) * (ls[i] - li[i])
+                fe.append(prob * n)
 
         case "EN":
             media = sum(muestras) / n
             lam = 1 / media
-            prob = -np.exp(-lam * ls) + np.exp(-lam * li)
-            fe = prob * n
+            fe = []
+            for i in range(n_barras):
+                prob = -math.exp(-lam * ls[i]) + math.exp(-lam * li[i])
+                fe.append(prob * n)
 
         case _:
             raise Exception
@@ -196,10 +191,6 @@ def calcular_frecuencias_continua(muestras, n_barras, distribucion):
 
 def calcular_frecuencias_poisson(muestras):
 
-    # Conversión de lista a numpy array
-
-    muestras = np.array(muestras)
-
     # Constantes
 
     maximo = max(muestras)
@@ -209,10 +200,12 @@ def calcular_frecuencias_poisson(muestras):
 
     # Vectores
 
-    x = np.arange(minimo, maximo+1)
-    fo = [(muestras == i).sum() for i in x]
-    prob = lam ** x * np.exp(-lam) / factorial(x)
-    fe = np.round(prob * n, 0).astype(int)
+    x = [i for i in range(minimo, maximo+1)]
+    fo = [muestras.count(i) for i in x]
+    fe = []
+    for i in x:
+        prob = lam ** i * math.exp(-lam) / factorial(i)
+        fe.append(int(round(prob * n, 0)))
 
     # Asignación de vectores en un diccionario
 
@@ -254,13 +247,14 @@ def calcular_chi2(fo, fe, distribucion):
         nuevo_fe[-1] += acum_fe
         nuevo_fo[-1] += acum_fo
 
-    fo = np.array(nuevo_fo)
-    fe = np.array(nuevo_fe)
+    fo = nuevo_fo
+    fe = nuevo_fe
 
     # Chi-Cuadrado calculado:
 
-    c = (fo - fe) ** 2 / fe
-    chi2_calculado = sum(c)
+    chi2_calculado = 0
+    for i in range(len(fo)):
+        chi2_calculado += (fo[i] - fe[i]) ** 2 / fe[i]
 
     # Chi-Cuadrado tabulado:
 
@@ -288,19 +282,15 @@ def calcular_ks(fo, fe):
 
     n = sum(fo)
 
-    # Conversión de listas a numpy arrays
-
-    fo = np.array(fo)
-    fe = np.array(fe)
-
     # K-S calculado:
 
-    po = fo / n
-    pe = fe / n
-    po_ac = np.cumsum(po)
-    pe_ac = np.cumsum(pe)
-    dif = abs(po_ac - pe_ac)
-    ks_calculado = max(dif)
+    ks_calculado = po_acum = pe_acum = 0
+    for i in range(len(fo)):
+        po_acum += fo[i] / n
+        pe_acum += fe[i] / n
+        dif = abs(po_acum - pe_acum)
+        if dif > ks_calculado:
+            ks_calculado = dif
 
     # K-S tabulado:
 
