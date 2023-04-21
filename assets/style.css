@@ -7,6 +7,10 @@ H1, H2, H3, H4 {
     font-family: "Rubik", sans-serif;
 }
 
+.btn {
+  font-family: "Rubik", sans-serif;
+}
+
 .columnas {
   columns: 5;
   -webkit-columns: 5;

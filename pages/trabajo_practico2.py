@@ -1,9 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, no_update, callback, html
-
 import soporte.simulacion as sim
-from soporte.componentes import generar_tipos_distribuciones, generar_parametros, generar_visualizacion
+from soporte.componentes import select_distribucion, generar_parametros, generar_histograma, generar_visualizacion
 
 dash.register_page(__name__,
                    path="/tp2/",
@@ -13,7 +12,7 @@ dash.register_page(__name__,
 # Esta es la estructura de la pagina
 layout = dbc.Container([
     html.H1('Trabajo Práctico Nº2: Variables Aleatorias'),
-    generar_tipos_distribuciones(),
+    select_distribucion(),
     html.Br(),
     generar_parametros(),
     html.Br(),
@@ -92,6 +91,7 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
     """
 
     # Chequeo de formularios y generación de muestras por distribución
+
     match distribucion:
 
         case "U":
@@ -128,30 +128,77 @@ def generar_grafico(n_clicks, distribucion, n, li, ls, media, desv, lam, interva
         case _:
             return True, no_update
 
-    # Generación de histograma y datos de acuerdo a distribución
+    # Cálculo de parámetros
+
+    cant_muestras, media, varianza, desv_est = sim.calcular_parametros(serie)
+
+    # Generación y cálculo de frecuencias observadas y esperadas
+
     match distribucion:
 
-        case "N" | "U" | "EN":
+        case "N":
+            lista_li, lista_ls, lista_marca, lista_fo = sim.generar_intervalos_dist_continua(serie, intervalos)
+            lista_fe = sim.calcular_frecuencia_esperada_normal(lista_li, lista_ls, lista_marca, cant_muestras, media,
+                                                               desv_est)
 
-            histograma = sim.generar_histograma_continua(serie, intervalos)
-            datos_frecuencia = sim.calcular_frecuencias_continua(serie, intervalos, distribucion)
-            datos_chi2 = sim.calcular_chi2(datos_frecuencia["Frecuencia observada"],
-                                           datos_frecuencia["Frecuencia esperada"], distribucion)
-            datos_ks = sim.calcular_ks(datos_frecuencia["Frecuencia observada"],
-                                       datos_frecuencia["Frecuencia esperada"])
+        case "U":
+            lista_li, lista_ls, lista_marca, lista_fo = sim.generar_intervalos_dist_continua(serie, intervalos)
+            lista_fe = sim.calcular_frecuencia_esperada_uniforme(cant_muestras, intervalos)
+
+        case "EN":
+            lista_li, lista_ls, lista_marca, lista_fo = sim.generar_intervalos_dist_continua(serie, intervalos)
+            lista_fe = sim.calcular_frecuencia_esperada_exp_neg(lista_li, lista_ls, cant_muestras, media)
 
         case "P":
-
-            histograma = sim.generar_histograma_poisson(serie)
-            datos_frecuencia = sim.calcular_frecuencias_poisson(serie)
-            datos_chi2 = sim.calcular_chi2(datos_frecuencia["Frecuencia observada"],
-                                           datos_frecuencia["Frecuencia esperada"], distribucion)
-            datos_ks = None
+            lista_marca, lista_fo = sim.generar_intervalos_dist_discreta(serie)
+            lista_fe = sim.calcular_frecuencia_esperada_poisson(lista_marca, media, cant_muestras)
 
         case _:
             return True, no_update
 
+    if distribucion in ("N", "EN", "U"):
+        datos_frecuencia = {
+            "#": range(intervalos),
+            "Desde": [round(i, 4) for i in lista_li],
+            "Hasta": [round(i, 4) for i in lista_ls],
+            "Marca de clase": [round(i, 4) for i in lista_marca],
+            "Frecuencia observada": lista_fo,
+            "Frecuencia esperada": [round(i, 0) for i in lista_fe]
+        }
+    else:
+        datos_frecuencia = {
+            "#": [i for i in range(len(lista_fo))],
+            "Marca de clase": lista_marca,
+            "Frecuencia observada": lista_fo,
+            "Frecuencia esperada": lista_fe
+        }
+
+    # Cálculo de chi2
+
+    chi2_calculado, chi2_tabulado, nivel_de_confianza, grados_libertad = sim.calcular_chi2(lista_fo, lista_fe,
+                                                                                           distribucion)
+    datos_chi2 = {
+        "Nivel de confianza": nivel_de_confianza,
+        "Grados de libertad": grados_libertad,
+        "χ2 calculado": round(chi2_calculado, 4),
+        "χ2 tabulado": round(chi2_tabulado, 4),
+    }
+
+    # Cálculo de ks si aplica
+
+    if distribucion in ("N", "EN", "U"):
+        ks_calculado, ks_tabulado, nivel_de_confianza = sim.calcular_ks(lista_fo, lista_fe)
+        datos_ks = {
+            "Nivel de confianza": nivel_de_confianza,
+            "Cantidad de muestras": n,
+            "K-S calculado": round(ks_calculado, 4),
+            "K-S tabulado": round(ks_tabulado, 4)
+        }
+    else:
+        datos_ks = None
+
     # Generación de visualizacion
+    histograma = generar_histograma(lista_marca, lista_fo, lista_fe)
     visualizacion = generar_visualizacion(histograma, serie, datos_frecuencia, datos_chi2, datos_ks)
 
     return False, visualizacion
