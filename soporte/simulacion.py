@@ -33,7 +33,7 @@ def generar_serie_uniforme(n, a, b) -> list[float]:
     return muestras
 
 
-def generar_serie_normal(n, desviacion, media) -> list[float]:
+def generar_serie_normal(n, media, desviacion) -> list[float]:
     """
     Genera una serie de n números aleatorios manteniendo una distribución normal.
 

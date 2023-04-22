@@ -1,7 +1,7 @@
 import dash
 from dash import Dash, html
 import dash_bootstrap_components as dbc
-from soporte.componentes import generar_barra_navegacion
+from components.barra_navegacion import crear_barra_navegacion
 
 # Se crea la app y el servidor
 app = Dash(__name__,
@@ -17,7 +17,7 @@ server = app.server
 # Esta es la estructura de la pagina web
 app.layout = html.Div([
     # Barra de navegación
-    generar_barra_navegacion(),
+    crear_barra_navegacion(),
     html.Br(),
     # Contenido de cada página
     dash.page_container
