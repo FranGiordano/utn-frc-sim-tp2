@@ -50,7 +50,7 @@ layout = dbc.Container([
                 ],
                 style={"width": "18rem"},
             ),
-        ], width="auto"),
+        ]),
 
         dbc.Col([
             dbc.Card(
@@ -70,7 +70,7 @@ layout = dbc.Container([
                 ],
                 style={"width": "18rem"},
             ),
-        ], width="auto"),
+        ]),
 
         dbc.Col([
             dbc.Card(
@@ -93,7 +93,7 @@ layout = dbc.Container([
                 ],
                 style={"width": "18rem"},
             ),
-        ], width="auto"),
+        ]),
 
         dbc.Col([
             dbc.Card(
@@ -116,9 +116,9 @@ layout = dbc.Container([
                 ],
                 style={"width": "18rem"},
             ),
-        ], width="auto")
+        ])
 
-    ], style={"margin": "auto"})
+    ])
 ])
     
 
