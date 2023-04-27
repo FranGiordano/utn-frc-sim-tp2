@@ -1,5 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
+from dash import html
 
 dash.register_page(__name__,
                    path="/tp3/",
@@ -8,5 +9,5 @@ dash.register_page(__name__,
 
 # Estructura de la página
 layout = dbc.Container([
-
+    html.H1('Trabajo Práctico Nº3: Simulación de Monte Carlo'),
 ])

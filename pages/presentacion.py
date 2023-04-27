@@ -9,7 +9,7 @@ dash.register_page(__name__,
                    name="Simulación")
 
 layout = dbc.Container([
-    html.Center(html.H1("Simulación 2023 - 4K2 - Grupo Nº3")),
+    html.Center(html.B(html.H1("Simulación 2023 - 4K2 - Grupo Nº3"))),
     html.Br(),
 
     html.Center(html.U(html.H2("Integrantes"))),
@@ -27,7 +27,7 @@ layout = dbc.Container([
     ], class_name="w-auto", striped=True, bordered=True, style={"margin": "auto"}),
 
     html.Br(),
-    html.Center(html.U(html.H2("Trabajos realizados"))),
+    html.Center(html.U(html.H2("Trabajos Prácticos"))),
     html.Br(),
 
     dbc.Row([
@@ -80,14 +80,14 @@ layout = dbc.Container([
                         [
                             html.H4("TP4: Modelos de Simulación Dinámicos", className="card-title"),
                             html.P(
-                                "En progreso.",
+                                "-",
                                 className="card-text", style={"text-align": "justify"}
                             ),
                             html.Br(),
                             html.Br(),
                             html.Br(),
                             html.Br(),
-                            dbc.Button("Ir al proyecto", color="secondary", href="/tp4/", disabled=True),
+                            dbc.Button("En progreso", color="secondary", href="/tp4/", disabled=True),
                         ]
                     ),
                 ],
@@ -103,14 +103,14 @@ layout = dbc.Container([
                         [
                             html.H4("TP5: Modelos de Simulación Complejos", className="card-title"),
                             html.P(
-                                "En progreso.",
+                                "-",
                                 className="card-text", style={"text-align": "justify"}
                             ),
                             html.Br(),
                             html.Br(),
                             html.Br(),
                             html.Br(),
-                            dbc.Button("Ir al proyecto", color="secondary", href="/tp5/", disabled=True),
+                            dbc.Button("En progreso", color="secondary", href="/tp5/", disabled=True),
                         ]
                     ),
                 ],
