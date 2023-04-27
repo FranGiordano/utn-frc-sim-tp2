@@ -2,12 +2,16 @@ import math
 import random as rd
 from scipy.stats import kstwo, chi2
 
+# Se establece semilla de random
+# rd.seed(0)
+
 
 # =====================================================================================================================
 #
-# GENERADORES
+# TRABAJO PRÁCTICO Nº2
 #
 # =====================================================================================================================
+
 
 def generar_serie_uniforme(n, a, b) -> list[float]:
     """
@@ -100,12 +104,6 @@ def generar_serie_poisson(n, lam) -> list[int]:
         serie.append(x)
     return serie
 
-
-# =====================================================================================================================
-#
-# CÁLCULOS DE FRECUENCIA OBSERVADA Y ESPERADA
-#
-# =====================================================================================================================
 
 def calcular_parametros(muestras) -> (int, float, float, float):
 
@@ -244,12 +242,6 @@ def calcular_frecuencia_esperada_poisson(lista_marca, lam, cant_muestras) -> lis
     return lista_frec_esperada
 
 
-# =====================================================================================================================
-#
-# PRUEBAS DE BONDAD DE AJUSTE
-#
-# =====================================================================================================================
-
 def calcular_chi2(lista_frec_observada, lista_frec_esperada, distribucion) -> (float, float, int, float):
 
     # Agrupamiento de frecuencias de forma que cada valor de frecuencias esperadas sea >= 5:
@@ -327,3 +319,11 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
     # Retornos
 
     return ks_calculado, ks_tabulado, nivel_de_confianza
+
+
+# =====================================================================================================================
+#
+# TRABAJO PRÁCTICO Nº3
+#
+# =====================================================================================================================
+

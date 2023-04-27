@@ -23,9 +23,12 @@ def crear_barra_navegacion() -> dbc.Navbar:
                 )),
             dbc.NavItem(
                 dbc.NavLink("Inicio", href="/", style={"color": "white"}),
-                class_name="ms-auto px-1"),
+                class_name="ms-auto px-3"),
             dbc.NavItem(
                 dbc.NavLink("TP2", href="/tp2/", style={"color": "white"}),
+                class_name="px-3"),
+            dbc.NavItem(
+                dbc.NavLink("TP3", href="/tp3/", style={"color": "white"}),
                 class_name="px-3"),
             html.A(
                 html.Img(src="/assets/icons/github-mark-white.svg",
