@@ -1,11 +1,6 @@
 import math
-import random
 import random as rd
 from scipy.stats import kstwo, chi2
-
-
-# Se establece semilla de random
-# rd.seed(0)
 
 
 # =====================================================================================================================
@@ -322,7 +317,7 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
 
 # Vector = [semana, RNDPedido, pedido, RNDConsumo, consumo, stock, k0, km, ks, costoTotal, costoAcumulado]
 
-vector_inicial = [1, random.random(), ]
+vector_inicial = [1, rd.random(), ]
 
 
 def generar_simulacion(c_simulaciones, semana, semilla1, c_pedido, c_mantenimiento, c_sobrepaso,
@@ -331,8 +326,8 @@ def generar_simulacion(c_simulaciones, semana, semilla1, c_pedido, c_mantenimien
     filas_guardadas = []
     fila_anterior = [0, 0, 0, 0, 0, stock_inicial, 0, 0, 0, 0, 0]
     for i in range(c_simulaciones):
-        prob_pedido = random.Random(semilla1).random()
-        prob_consumo = random.Random(math.sqrt(semilla1)).random()
+        prob_pedido = rd.Random(semilla1).random()
+        prob_consumo = rd.Random(math.sqrt(semilla1)).random()
 
         fila_actual = iteracion_siguiente(fila_anterior, prob_pedido, prob_consumo, c_pedido, c_mantenimiento,
                                           c_sobrepaso, cant_sobrepaso)
