@@ -43,6 +43,47 @@ class MonteCarloLavarropa:
         self.stock_inicial = stock_inicial
         self.capacidad_maxima = capacidad_maxima
 
+    def simular(self, cantidad_simulaciones, semana_a_grabar):
+        """Realiza la simulación"""
+
+        # Inicialización de variables
+        filas_guardadas = []
+        fila_actual = []
+
+        # Cálculos de costos de mantenimientos y de sobrepaso iniciales en caso de existir un stock inicial
+        costo_mantenimiento_inicial = self._calcular_costo_mantenimiento(self.stock_inicial)
+        costo_sobrepaso_inicial = self._calcular_costo_sobrepaso(self.stock_inicial)
+        costo_total_inicial = self.costo_pedido + costo_mantenimiento_inicial + costo_sobrepaso_inicial
+
+        # Para la semana 0, se encarga un pedido de tal forma que exista uno para la semana 1
+        fila_anterior = [
+            0,                              # 0) Semana
+            0,                              # 1) Probabilidad de consumo
+            0,                              # 2) Consumo semanal
+            0,                              # 3) Probabilidad de pedido
+            0,                              # 4) Tamaño de pedido
+            self.stock_inicial,             # 5) Stock
+            self.costo_pedido,              # 6) Costo de pedido
+            costo_mantenimiento_inicial,    # 7) Costo de mantenimiento
+            costo_sobrepaso_inicial,        # 8) Costo de sobrepaso
+            costo_total_inicial,            # 9) Costo total
+            costo_total_inicial             # 10) Costo total acumulado
+        ]
+
+        # Ejecución de simulación por semana
+        for i in range(cantidad_simulaciones):
+
+            fila_actual = self._calcular_siguiente_fila(fila_anterior)
+
+            # En el caso de que la semana esté dentro del rango a grabar, se lo adjunta en una lista
+            if semana_a_grabar <= (i + 1) < semana_a_grabar + 500:
+                filas_guardadas.append(fila_actual)
+
+            if i != (cantidad_simulaciones - 1):
+                fila_anterior = fila_actual
+
+        return filas_guardadas, fila_actual, fila_anterior
+
     def _obtener_tamanio_pedido(self, prob_pedido):
         """Devuelve el tamaño de un pedido dada una probabilidad ingresada como parámetro"""
 
@@ -75,72 +116,23 @@ class MonteCarloLavarropa:
             ks = 0
         return ks
 
-    def simular(self, cantidad_simulaciones, semana_a_grabar):
-        """Realiza la simulación"""
+    def _calcular_siguiente_fila(self, fila_anterior):
 
-        # Inicialización de variables
-        filas_guardadas = []
-        fila_actual = []
+        # Cálculo del nuevo vector de estado
+        semana = fila_anterior[0] + 1
+        prob_consumo = self._generador_nros_aleatorios.random()
+        consumo = self._obtener_consumo_demanda(prob_consumo)
+        prob_pedido = self._generador_nros_aleatorios.random()
+        pedido = self._obtener_tamanio_pedido(prob_pedido)
+        stock = pedido + fila_anterior[5] - consumo
+        k0 = self.costo_pedido
+        km = self._calcular_costo_mantenimiento(stock)
+        ks = self._calcular_costo_sobrepaso(stock)
+        costo_total = k0 + km + ks
+        costo_total_acumulado = fila_anterior[10] + costo_total
 
-        # Cálculos de costos de mantenimientos y de sobrepaso iniciales en caso de existir un stock inicial
-        costo_mantenimiento_inicial = self._calcular_costo_mantenimiento(self.stock_inicial)
-        costo_sobrepaso_inicial = self._calcular_costo_sobrepaso(self.stock_inicial)
-        costo_total_inicial = self.costo_pedido + costo_mantenimiento_inicial + costo_sobrepaso_inicial
-
-        # Para la semana 0, se encarga un pedido de tal forma que exista uno para la semana 1
-        fila_anterior = [
-            0,                              # 0) Semana
-            0,                              # 1) Probabilidad de consumo
-            0,                              # 2) Consumo semanal
-            0,                              # 3) Probabilidad de pedido
-            0,                              # 4) Tamaño de pedido
-            self.stock_inicial,             # 5) Stock
-            self.costo_pedido,              # 6) Costo de pedido
-            costo_mantenimiento_inicial,    # 7) Costo de mantenimiento
-            costo_sobrepaso_inicial,        # 8) Costo de sobrepaso
-            costo_total_inicial,            # 9) Costo total
-            costo_total_inicial             # 10) Costo total acumulado
-        ]
-
-        # Ejecución de simulación por semana
-        for i in range(cantidad_simulaciones):
-
-            # Cálculo del nuevo vector de estado
-            semana = fila_anterior[0] + 1
-            prob_consumo = self._generador_nros_aleatorios.random()
-            consumo = self._obtener_consumo_demanda(prob_consumo)
-            prob_pedido = self._generador_nros_aleatorios.random()
-            pedido = self._obtener_tamanio_pedido(prob_pedido)
-            stock = pedido + fila_anterior[5] - consumo
-            k0 = self.costo_pedido
-            km = self._calcular_costo_mantenimiento(stock)
-            ks = self._calcular_costo_sobrepaso(stock)
-            costo_total = k0 + km + ks
-            costo_total_acumulado = fila_anterior[10] + costo_total
-
-            # Asignación de valores procesados a una nueva fila
-            fila_actual = [
-                semana,
-                prob_consumo,
-                consumo,
-                prob_pedido,
-                pedido,
-                stock,
-                k0,
-                km,
-                ks,
-                costo_total,
-                costo_total_acumulado
-            ]
-
-            # En el caso de que la semana esté dentro del rango a grabar, se lo adjunta en una lista
-            if semana_a_grabar <= (i + 1) < semana_a_grabar + 500:
-                filas_guardadas.append(fila_actual)
-
-            if i != (cantidad_simulaciones - 1):
-                fila_anterior = fila_actual
-
-        return filas_guardadas, fila_actual, fila_anterior
+        return [semana, prob_consumo, consumo, prob_pedido, pedido, stock, k0, km, ks, costo_total,
+                costo_total_acumulado]
 
 
 def test():
@@ -150,7 +142,7 @@ def test():
     c_sobrepaso = 15000
     c_mantenimiento = 6000
     c_pedido = 550000
-    simulacion = 10 ** 5
+    simulacion = 10 ** 7
     semana = 0
     semilla = -1
     consumo_demanda = [6000, 7000, 8000, 9000, 10000, 11000]
