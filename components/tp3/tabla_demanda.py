@@ -11,7 +11,7 @@ def crear_tabla_demanda():
                 {"consumo": 10000, "probabilidad": 0.20},
                 {"consumo": 11000, "probabilidad": 0.10}]
 
-    columnas = [{"id": "consumo", "name": "Consumo semanal de acero (m2)"},
+    columnas = [{"id": "consumo", "name": "Consumo semanal de acero (m²)"},
                 {"id": "probabilidad", "name": "Probabilidad"}]
 
     tabla = dash_table.DataTable(

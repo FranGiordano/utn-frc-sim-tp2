@@ -7,6 +7,7 @@ from components.tp3.tabla_demanda import crear_tabla_demanda
 from components.tp3.tabla_pedido import crear_tabla_pedido
 from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
 from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
+import soporte.simulacion as sim
 import random as rd
 
 dash.register_page(__name__,
@@ -16,9 +17,10 @@ dash.register_page(__name__,
 
 # Estructura de la página
 layout = dbc.Container([
-    html.H1('Trabajo Práctico Nº3: Simulación de Montecarlo (Lavarropas)'),
+    html.Center(html.H1('Trabajo Práctico Nº3: Simulación de Montecarlo (Lavarropas)')),
 
     dbc.Tabs([
+
         dbc.Tab(dbc.Card(dbc.CardBody([
             crear_parametros_montecarlo_negocio(),
             crear_parametros_montecarlo_simulacion(),
@@ -34,6 +36,7 @@ layout = dbc.Container([
                 dbc.Col(crear_parametros_tabla_pedido()),
             ], className="mt-3"),
         ]), className="mt-3"), label="Tablas de probabilidad"),
+
     ], className="mt-3"),
 
     dbc.Toast("Los datos ingresados no son válidos, revíselos nuevamente.", icon="danger", dismissable=True,
@@ -141,6 +144,7 @@ def actualizar_alertas_tabla_pedido(filas):
         return filas, f"Probabilidad acumulada: {suma_probabilidades}", "warning"
 
 
+# Callback para el proceso de simulación y generación de resultados
 @callback(
     Output("toast_tp3", "is_open"),
     Output('sp_resultados_tp3', 'children'),
@@ -158,9 +162,11 @@ def actualizar_alertas_tabla_pedido(filas):
     prevent_initial_call=True
 )
 def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimiento, c_pedido, filas_demanda,
-                           filas_pedido, c_simulaciones, semana, semilla):
+                           filas_pedido, simulaciones, semana, semilla):
 
-    if None in [inventario, stock, c_sobrepaso, c_mantenimiento, c_pedido, c_simulaciones, semana, semilla]:
+    # Validación de datos
+
+    if None in [inventario, stock, c_sobrepaso, c_mantenimiento, c_pedido, simulaciones, semana, semilla]:
         return True, no_update
 
     suma_probabilidades_demanda = round(sum([fila["probabilidad"] for fila in filas_demanda]), 2)
@@ -171,12 +177,24 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
     if suma_probabilidades_pedido != 1:
         return True, no_update
 
+    # Procesamiento de entradas
+
     consumos_demanda = [fila["consumo"] for fila in filas_demanda]
     probabilidades_demanda = [fila["probabilidad"] for fila in filas_demanda]
     tamanios_pedido = [fila["pedido"] for fila in filas_pedido]
-    probabildiades_pedido = [fila["probabilidad"] for fila in filas_pedido]
+    probabilidades_pedido = [fila["probabilidad"] for fila in filas_pedido]
 
     if semilla == -1:
         semilla = rd.random()
 
-    return False, no_update
+    # Cálculo y generación de resultados
+
+    filas_guardadas, fila_actual, fila_anterior = sim.generar_simulacion(simulaciones, semana, semilla, c_pedido,
+                                                                         c_mantenimiento, c_sobrepaso, stock, inventario,
+                                                                         consumos_demanda, probabilidades_demanda,
+                                                                         tamanios_pedido, probabilidades_pedido)
+
+    print(fila_actual)
+    print(fila_anterior)
+
+    return False, html.Div("Todo correcto")

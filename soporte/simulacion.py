@@ -315,54 +315,109 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
 #
 # =====================================================================================================================
 
-# Vector = [semana, RNDPedido, pedido, RNDConsumo, consumo, stock, k0, km, ks, costoTotal, costoAcumulado]
 
-vector_inicial = [1, rd.random(), ]
+def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_mantenimiento, c_sobrepaso, stock_inicial,
+                       inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido, probabilidades_pedido):
 
+    # Seteo de semilla
+    rd.seed(semilla)
 
-def generar_simulacion(c_simulaciones, semana, semilla1, c_pedido, c_mantenimiento, c_sobrepaso,
-                       cant_sobrepaso, stock_inicial):
-
+    # Inicialización de variables
     filas_guardadas = []
-    fila_anterior = [0, 0, 0, 0, 0, stock_inicial, 0, 0, 0, 0, 0]
+    fila_actual = []
+
+    # Seteo de vectores de probabilidades acumuladas para demanda y pedido
+    prob_acum_demanda = [0]
+    for i in range(len(probabilidades_demanda)):
+        prob_acum_demanda.append(prob_acum_demanda[i] + probabilidades_demanda[i])
+
+    prob_acum_pedido = [0]
+    for i in range(len(probabilidades_pedido)):
+        prob_acum_pedido.append(prob_acum_pedido[i] + probabilidades_pedido[i])
+
+    # Cálculos de costos de mantenimientos y de sobrepaso iniciales en caso de existir un stock inicial
+    if stock_inicial > inventario:
+        costo_mantenimiento_inicial = inventario * c_mantenimiento
+        costo_sobrepaso_inicial = (stock_inicial - inventario) * c_sobrepaso
+    else:
+        costo_mantenimiento_inicial = stock_inicial * c_mantenimiento
+        costo_sobrepaso_inicial = 0
+    costo_total_inicial = c_pedido + costo_mantenimiento_inicial + costo_sobrepaso_inicial
+
+    # Para la semana 0, se encarga un pedido de tal forma que exista uno para la semana 1
+    fila_anterior = [
+        0,                                      # 0) Semana
+        0,                                      # 1) Probabilidad de consumo
+        0,                                      # 2) Consumo semanal
+        0,                                      # 3) Probabilidad de pedido
+        0,                                      # 4) Tamaño de pedido
+        stock_inicial,                          # 5) Stock
+        c_pedido,                               # 6) Costo de pedido
+        costo_mantenimiento_inicial,            # 7) Costo de mantenimiento
+        costo_sobrepaso_inicial,                # 8) Costo de sobrepaso
+        costo_total_inicial,                    # 9) Costo total
+        costo_total_inicial                     # 10) Costo total acumulado
+    ]
+
+    # Ejecución de simulación por semana
     for i in range(c_simulaciones):
-        prob_pedido = rd.Random(semilla1).random()
-        prob_consumo = rd.Random(math.sqrt(semilla1)).random()
 
-        fila_actual = iteracion_siguiente(fila_anterior, prob_pedido, prob_consumo, c_pedido, c_mantenimiento,
-                                          c_sobrepaso, cant_sobrepaso)
+        # 0) Semana
+        semana = fila_anterior[0] + 1
 
-        if semana <= (i + 1) <= semana + 500:
+        # 1) Probabilidad de consumo
+        prob_consumo = rd.random()
+
+        # 2) Consumo semanal
+        for j in range(len(probabilidades_demanda)):
+            if prob_acum_demanda[j] <= prob_consumo < prob_acum_demanda[j+1]:
+                consumo = consumos_demanda[j]
+
+        # 3) Probabilidad de pedido
+        prob_pedido = rd.random()
+
+        # 4) Tamaño de pedido
+        for j in range(len(probabilidades_pedido)):
+            if prob_acum_pedido[j] <= prob_pedido < prob_acum_pedido[j+1]:
+                pedido = tamanios_pedido[j]
+
+        # 5) Stock
+        stock = pedido + fila_anterior[5] - consumo
+
+        # 6) Costo de pedido
+        k0 = c_pedido
+
+        # 7) Costo de mantenimiento
+        km = (stock * c_mantenimiento) if stock <= inventario else (inventario * c_mantenimiento)
+
+        # 8) Costo de sobrepaso
+        ks = (stock - inventario) * c_sobrepaso if (stock > inventario) else 0
+
+        # 9) Costo total
+        costo_total = c_pedido + km + ks
+
+        # 10) Costo total acumulado
+        costo_total_acumulado = fila_anterior[10] + costo_total
+
+        fila_actual = [
+            semana,
+            prob_consumo,
+            consumo,
+            prob_pedido,
+            pedido,
+            stock,
+            k0,
+            km,
+            ks,
+            costo_total,
+            costo_total_acumulado
+        ]
+
+        if semana_a_grabar <= (i + 1) < semana_a_grabar + 500:
             filas_guardadas.append(fila_actual)
-                
+
+        if i != (c_simulaciones - 1):
+            fila_anterior = fila_actual
+
+    # Retorno de datos
     return filas_guardadas, fila_actual, fila_anterior
-
-
-def iteracion_siguiente(fila_actual, pr_pedido, pr_consumo, c_pedido, c_mantenimiento, c_sobrepaso, cant_sobrepaso):
-
-    semana = fila_actual[0] + 1
-    pedido = obtener_pedido(pr_pedido)
-    consumo = obtener_consumo(pr_consumo)
-    stock = pedido + fila_actual[5] - consumo
-    k0 = c_pedido
-    km = (c_mantenimiento * stock) if (stock > 0) else 0
-    ks = (stock - cant_sobrepaso) * c_sobrepaso if (stock > cant_sobrepaso) else 0
-    costo_total = k0 + km + ks
-    costo_acumulado = fila_actual[11] + costo_total
-
-    fila_nueva = [semana, pr_pedido, pedido, pr_consumo, consumo, stock, k0, km, ks, costo_total, costo_acumulado]
-
-    return fila_nueva
-
-
-def obtener_pedido(pr_pedido, tabla):
-    for i in range(len(tabla)):
-        if pr_pedido < tabla[[i], [1]]:
-            return tabla[[i], [0]]
-
-
-def obtener_consumo(pr_consumo, tabla):
-    for i in range(len(tabla)):
-        if pr_consumo < tabla[[i], [1]]:
-            return tabla[[i], [0]]
-

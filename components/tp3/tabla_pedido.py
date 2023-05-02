@@ -9,7 +9,7 @@ def crear_tabla_pedido():
                {"pedido": 11000, "probabilidad": 0.45}]
 
     columnas = [
-        {"id": "pedido", "name": "Tamaño de pedido (m2)", "type": "numeric"},
+        {"id": "pedido", "name": "Tamaño de pedido (m²)", "type": "numeric"},
         {"id": "probabilidad", "name": "Probabilidad", "type": "numeric"}]
 
     tabla = dash_table.DataTable(
