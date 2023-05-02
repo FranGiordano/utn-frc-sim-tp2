@@ -8,7 +8,7 @@ from components.tp3.tabla_pedido import crear_tabla_pedido
 from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
 from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
 from components.general.tabla import crear_tabla
-from soporte.montecarlo import MonteCarloLavarropa
+from soporte.simulacion import generar_simulacion
 
 dash.register_page(__name__,
                    path="/tp3/",
@@ -200,11 +200,23 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
 
     # Cálculo y generación de resultados
 
+    filas_guardadas, fila_actual, fila_anterior = generar_simulacion(simulaciones, semana, semilla, c_pedido,
+                                                                     c_mantenimiento, c_sobrepaso, stock, inventario,
+                                                                     consumos_demanda, probabilidades_demanda,
+                                                                     tamanios_pedido, probabilidades_pedido)
+
+    """
+    # OPCIÓN ALTERNATIVA
+    
+    from soporte.montecarlo import MonteCarloLavarropa
+
     simulador = MonteCarloLavarropa(semilla)
     simulador.establecer_tabla_demanda(consumos_demanda, probabilidades_demanda)
     simulador.establecer_tabla_pedido(tamanios_pedido, probabilidades_pedido)
     simulador.establecer_parametros_negocio(c_pedido, c_mantenimiento, c_sobrepaso, stock, inventario)
     filas_guardadas, fila_actual, fila_anterior = simulador.simular(simulaciones, semana)
+    
+    """
 
     datos_filas_guardadas = {
         "Semana": [fila[0] for fila in filas_guardadas],

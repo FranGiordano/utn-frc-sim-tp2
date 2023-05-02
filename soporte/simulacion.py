@@ -319,7 +319,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
                        inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido, probabilidades_pedido):
 
     # Seteo de semilla
-    rd.seed(semilla)
+    generador_nros_aleatorios = rd.Random(semilla)
 
     # Inicialización de variables
     filas_guardadas = []
@@ -356,7 +356,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
         semana = fila_anterior[0] + 1
 
         # 1) Probabilidad de consumo
-        prob_consumo = rd.random()
+        prob_consumo = generador_nros_aleatorios.random()
 
         # 2) Consumo semanal
         for j in range(len(probabilidades_demanda)):
@@ -364,7 +364,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
                 consumo = consumos_demanda[j]
 
         # 3) Probabilidad de pedido
-        prob_pedido = rd.random()
+        prob_pedido = generador_nros_aleatorios.random()
 
         # 4) Tamaño de pedido
         for j in range(len(probabilidades_pedido)):
@@ -421,3 +421,43 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
 
     # Retorno de datos
     return filas_guardadas, fila_actual, fila_anterior
+
+
+# =====================================================================================================================
+#
+# TESTS
+#
+# =====================================================================================================================
+
+def test_montecarlo():
+    inventario = 25000
+    stock = 0
+    c_sobrepaso = 15000
+    c_mantenimiento = 6000
+    c_pedido = 550000
+    simulacion = 10 ** 7
+    semana = 0
+    semilla = None
+    consumo_demanda = [6000, 7000, 8000, 9000, 10000, 11000]
+    prob_demanda = [0.05, 0.15, 0.2, 0.3, 0.2, 0.1]
+    tamanio_pedido = [8000, 11000]
+    prob_pedido = [0.55, 0.45]
+
+    filas_guardadas, fila_actual, fila_anterior = generar_simulacion(simulacion, semana, semilla, c_pedido,
+                                                                     c_mantenimiento, c_sobrepaso, stock, inventario,
+                                                                     consumo_demanda, prob_demanda, tamanio_pedido,
+                                                                     prob_pedido)
+
+    print(f'Penúltima fila: {fila_anterior}')
+    print(f'Última fila: {fila_actual}')
+    print(f'Simulaciones: {simulacion}')
+
+
+if __name__ == "__main__":
+
+    import time
+
+    start = time.time()
+    test_montecarlo()
+    end = time.time()
+    print(f"Tiempo transcurrido: {round(end - start, 2)} segundos")
