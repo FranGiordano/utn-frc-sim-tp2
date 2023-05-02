@@ -20,9 +20,9 @@ def crear_parametros_montecarlo_simulacion():
 
         dbc.Col(id="form-semilla", children=[
             dbc.FormFloating([
-                dbc.Input(id="in_semilla", placeholder="Semilla de random (-1 para aleatorio)", type="number",
-                          min=-1, value=-1, required=True, step=1),
-                dbc.Label("Semilla de random (-1 para aleatorio)"),
+                dbc.Input(id="in_semilla", placeholder="Semilla de random (Dejar vacío para aleatorio)", type="number",
+                          min=0, required=False, step=1),
+                dbc.Label("Semilla de random (Dejar vacío para aleatorio)"),
             ])]),
 
         dbc.Col(dbc.Button("Generar simulación",

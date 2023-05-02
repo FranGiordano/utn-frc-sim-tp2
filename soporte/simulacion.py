@@ -315,7 +315,6 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
 #
 # =====================================================================================================================
 
-
 def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_mantenimiento, c_sobrepaso, stock_inicial,
                        inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido, probabilidades_pedido):
 
@@ -407,6 +406,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
         # 10) Costo total acumulado
         costo_total_acumulado = fila_anterior[10] + costo_total
 
+        # Asignación de valores procesados a una nueva fila
         fila_actual = [
             semana,
             prob_consumo,
@@ -421,6 +421,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
             costo_total_acumulado
         ]
 
+        # En el caso de que la semana esté dentro del rango a grabar, se lo adjunta en una lista
         if semana_a_grabar <= (i + 1) < semana_a_grabar + 500:
             filas_guardadas.append(fila_actual)
 

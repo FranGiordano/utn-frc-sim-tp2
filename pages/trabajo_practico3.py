@@ -8,8 +8,7 @@ from components.tp3.tabla_pedido import crear_tabla_pedido
 from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
 from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
 from components.general.tabla import crear_tabla
-import soporte.simulacion as sim
-import random as rd
+from soporte.montecarlo import MonteCarloLavarropa
 
 dash.register_page(__name__,
                    path="/tp3/",
@@ -71,7 +70,14 @@ def crear_fila_tabla_demanda(n_clicks, consumo, probabilidad, filas):
 
     suma_probabilidades = round(suma_probabilidades + probabilidad, 2)
 
-    filas.append(fila)
+    bandera_repetido = False
+    for fila in filas:
+        if fila["consumo"] == consumo:
+            fila["probabilidad"] = round(fila["probabilidad"] + probabilidad, 2)
+            bandera_repetido = True
+
+    if not bandera_repetido:
+        filas.append(fila)
 
     if suma_probabilidades == 1:
         return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
@@ -119,7 +125,14 @@ def crear_fila_tabla_pedido(n_clicks, tamanio, probabilidad, filas):
 
     suma_probabilidades = round(suma_probabilidades + probabilidad, 2)
 
-    filas.append(fila)
+    bandera_repetido = False
+    for fila in filas:
+        if fila["pedido"] == tamanio:
+            fila["probabilidad"] = round(fila["probabilidad"] + probabilidad, 2)
+            bandera_repetido = True
+
+    if not bandera_repetido:
+        filas.append(fila)
 
     if suma_probabilidades == 1:
         return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
@@ -167,7 +180,7 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
 
     # Validación de datos
 
-    if None in [inventario, stock, c_sobrepaso, c_mantenimiento, c_pedido, simulaciones, semana, semilla]:
+    if None in [inventario, stock, c_sobrepaso, c_mantenimiento, c_pedido, simulaciones, semana]:
         return True, no_update
 
     suma_probabilidades_demanda = round(sum([fila["probabilidad"] for fila in filas_demanda]), 2)
@@ -185,15 +198,13 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
     tamanios_pedido = [fila["pedido"] for fila in filas_pedido]
     probabilidades_pedido = [fila["probabilidad"] for fila in filas_pedido]
 
-    if semilla == -1:
-        semilla = rd.random()
-
     # Cálculo y generación de resultados
 
-    filas_guardadas, fila_actual, fila_anterior = sim.generar_simulacion(simulaciones, semana, semilla, c_pedido,
-                                                                         c_mantenimiento, c_sobrepaso, stock, inventario,
-                                                                         consumos_demanda, probabilidades_demanda,
-                                                                         tamanios_pedido, probabilidades_pedido)
+    simulador = MonteCarloLavarropa(semilla)
+    simulador.establecer_tabla_demanda(consumos_demanda, probabilidades_demanda)
+    simulador.establecer_tabla_pedido(tamanios_pedido, probabilidades_pedido)
+    simulador.establecer_parametros_negocio(c_pedido, c_mantenimiento, c_sobrepaso, stock, inventario)
+    filas_guardadas, fila_actual, fila_anterior = simulador.simular(simulaciones, semana)
 
     datos_filas = {
         "Semana": [fila[0] for fila in filas_guardadas],

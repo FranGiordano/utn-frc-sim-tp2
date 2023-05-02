@@ -37,7 +37,7 @@ def crear_tabla(diccionario) -> dbc.Table:
 
     # Creación de la tabla
 
-    table = dbc.Table(table_header + table_body, class_name="w-auto mx-auto", striped=True, bordered=True,
+    table = dbc.Table(table_header + table_body, class_name="w-auto mx-auto mt-3", striped=True, bordered=True,
                       responsive=True)
 
     return table
