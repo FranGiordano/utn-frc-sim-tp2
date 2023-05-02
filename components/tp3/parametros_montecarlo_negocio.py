@@ -26,7 +26,7 @@ def crear_parametros_montecarlo_negocio():
                     dbc.FormFloating([
                         dbc.Input(id="in_costo_sobrepaso",
                                   placeholder="Costo por sobrepaso",
-                                  type="number", min=1, step=1,
+                                  type="number", min=0, step=1,
                                   value=15, required=True),
                         dbc.Label("Costo por sobrepaso"),
                     ])]),

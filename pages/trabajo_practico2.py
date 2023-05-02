@@ -19,6 +19,7 @@ dash.register_page(__name__,
 # Estructura de la pagina
 layout = dbc.Container([
     html.H1('Trabajo Práctico Nº2: Variables Aleatorias'),
+    html.Br(),
     crear_select_tipo_distribucion(),
     html.Br(),
     crear_parametros_distribucion(),

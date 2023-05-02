@@ -29,6 +29,6 @@ def crear_parametros_montecarlo_simulacion():
                            id="btn_generar_simulacion",
                            color="primary"),
                 class_name="col-auto align-self-end")
-    ])
+    ], className="mt-3")
 
     return parametros_simulacion

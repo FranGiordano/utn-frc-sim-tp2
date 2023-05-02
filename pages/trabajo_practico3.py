@@ -17,24 +17,31 @@ dash.register_page(__name__,
 # Estructura de la página
 layout = dbc.Container([
     html.H1('Trabajo Práctico Nº3: Simulación de Montecarlo (Lavarropas)'),
-    crear_parametros_montecarlo_negocio(),
-    html.Br(),
-    dbc.Row([
-        dbc.Col(crear_tabla_demanda()),
-        dbc.Col(crear_tabla_pedido()),
-    ]),
-    html.Br(),
-    dbc.Row([
-        dbc.Col(crear_parametros_tabla_demanda()),
-        dbc.Col(crear_parametros_tabla_pedido()),
-    ]),
-    html.Br(),
-    crear_parametros_montecarlo_simulacion(),
-    html.Br(),
-    dbc.Alert("Simulación no generada. Revise nuevamente los datos.", color="danger", dismissable=True,
-              id="alerta_tp3", is_open=False),
+
+    dbc.Tabs([
+        dbc.Tab(dbc.Card(dbc.CardBody([
+            crear_parametros_montecarlo_negocio(),
+            crear_parametros_montecarlo_simulacion(),
+        ]), className="mt-3"), label="Parámetros"),
+
+        dbc.Tab(dbc.Card(dbc.CardBody([
+            dbc.Row([
+                dbc.Col(crear_tabla_demanda()),
+                dbc.Col(crear_tabla_pedido()),
+            ]),
+            dbc.Row([
+                dbc.Col(crear_parametros_tabla_demanda()),
+                dbc.Col(crear_parametros_tabla_pedido()),
+            ], className="mt-3"),
+        ]), className="mt-3"), label="Tablas de probabilidad"),
+    ], className="mt-3"),
+
+    dbc.Toast("Los datos ingresados no son válidos, revíselos nuevamente.", icon="danger", dismissable=True,
+              id="toast_tp3", is_open=False, header="Simulación no generada.", duration=8000,
+              style={"position": "fixed", "top": 66, "right": 10, "width": 350},),
+
     dbc.Spinner(id="sp_resultados_tp3", children={}, color="primary", show_initially=False),
-    html.Br(),
+
 ])
 
 
@@ -135,7 +142,7 @@ def actualizar_alertas_tabla_pedido(filas):
 
 
 @callback(
-    Output("alerta_tp3", "is_open"),
+    Output("toast_tp3", "is_open"),
     Output('sp_resultados_tp3', 'children'),
     Input("btn_generar_simulacion", "n_clicks"),
     State("in_inventario", "value"),
