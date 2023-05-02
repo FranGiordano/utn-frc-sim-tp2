@@ -1,7 +1,7 @@
 import dash
 from dash import Dash, html
 import dash_bootstrap_components as dbc
-from components.barra_navegacion import crear_barra_navegacion
+from components.general.barra_navegacion import crear_barra_navegacion
 
 # Se crea la app y el servidor
 app = Dash(__name__,

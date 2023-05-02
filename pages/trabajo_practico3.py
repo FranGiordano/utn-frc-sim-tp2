@@ -1,12 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, State, Input, Output, callback, no_update
-from components.parametros_montecarlo_negocio import crear_parametros_montecarlo_negocio
-from components.parametros_montecarlo_simulacion import crear_parametros_montecarlo_simulacion
-from components.tabla_demanda import crear_tabla_demanda
-from components.tabla_pedido import crear_tabla_pedido
-from components.parametros_tabla_pedido import crear_parametros_tabla_pedido
-from components.parametros_tabla_demanda import crear_parametros_tabla_demanda
+from components.tp3.parametros_montecarlo_negocio import crear_parametros_montecarlo_negocio
+from components.tp3.parametros_montecarlo_simulacion import crear_parametros_montecarlo_simulacion
+from components.tp3.tabla_demanda import crear_tabla_demanda
+from components.tp3.tabla_pedido import crear_tabla_pedido
+from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
+from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
 import random as rd
 
 dash.register_page(__name__,

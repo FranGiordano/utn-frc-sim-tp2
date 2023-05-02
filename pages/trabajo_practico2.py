@@ -2,13 +2,13 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, no_update, callback, html
 
-from components.parametros_distribucion import crear_parametros_distribucion
-from components.select_tipo_distribucion import crear_select_tipo_distribucion
-from components.tabla import crear_tabla
-from components.alerta_ks import crear_alerta_ks
-from components.alerta_chi2 import crear_alerta_chi2
-from components.histograma_distribucion import crear_histograma
-from components.resultados_distribucion import crear_resultados_distribucion
+from components.tp2.parametros_distribucion import crear_parametros_distribucion
+from components.tp2.select_tipo_distribucion import crear_select_tipo_distribucion
+from components.general.tabla import crear_tabla
+from components.tp2.alerta_ks import crear_alerta_ks
+from components.tp2.alerta_chi2 import crear_alerta_chi2
+from components.tp2.histograma_distribucion import crear_histograma
+from components.tp2.resultados_distribucion import crear_resultados_distribucion
 import soporte.simulacion_dummy as sim
 
 dash.register_page(__name__,
