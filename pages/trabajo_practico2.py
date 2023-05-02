@@ -9,7 +9,7 @@ from components.alerta_ks import crear_alerta_ks
 from components.alerta_chi2 import crear_alerta_chi2
 from components.histograma_distribucion import crear_histograma
 from components.resultados_distribucion import crear_resultados_distribucion
-import soporte.simulacion as sim
+import soporte.simulacion_dummy as sim
 
 dash.register_page(__name__,
                    path="/tp2/",

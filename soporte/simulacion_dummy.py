@@ -3,7 +3,6 @@ import random
 import random as rd
 from scipy.stats import kstwo, chi2
 
-
 # Se establece semilla de random
 # rd.seed(0)
 
@@ -108,6 +107,7 @@ def generar_serie_poisson(n, lam) -> list[int]:
 
 
 def calcular_parametros(muestras) -> (int, float, float, float):
+
     cant_muestras = len(muestras)
 
     media = sum(muestras) / cant_muestras
@@ -123,6 +123,7 @@ def calcular_parametros(muestras) -> (int, float, float, float):
 
 
 def generar_intervalos_dist_continua(muestras, cant_intervalos) -> (list[float], list[float], list[float], list[int]):
+
     # Cálculos iniciales
 
     maximo = max(muestras)
@@ -162,6 +163,7 @@ def generar_intervalos_dist_continua(muestras, cant_intervalos) -> (list[float],
 
 
 def generar_intervalos_dist_discreta(muestras) -> (list[int], list[int]):
+
     # Cálculos iniciales
 
     maximo = max(muestras)
@@ -183,6 +185,7 @@ def generar_intervalos_dist_discreta(muestras) -> (list[int], list[int]):
 
 
 def calcular_frecuencia_esperada_uniforme(cant_muestras, cant_intervalos) -> list[float]:
+
     # Generación de lista de frecuencia esperada
 
     lista_frec_esperada = [cant_muestras / cant_intervalos] * cant_intervalos
@@ -193,6 +196,7 @@ def calcular_frecuencia_esperada_uniforme(cant_muestras, cant_intervalos) -> lis
 
 
 def calcular_frecuencia_esperada_normal(lista_li, lista_ls, lista_marca, cant_muestras, media, desv_est) -> list[float]:
+
     # Generación de lista de frecuencia esperada
 
     lista_frec_esperada = []
@@ -208,6 +212,7 @@ def calcular_frecuencia_esperada_normal(lista_li, lista_ls, lista_marca, cant_mu
 
 
 def calcular_frecuencia_esperada_exp_neg(lista_li, lista_ls, cant_muestras, media) -> list[float]:
+
     # Cálculos iniciales
 
     lam = 1 / media
@@ -225,6 +230,7 @@ def calcular_frecuencia_esperada_exp_neg(lista_li, lista_ls, cant_muestras, medi
 
 
 def calcular_frecuencia_esperada_poisson(lista_marca, lam, cant_muestras) -> list[float]:
+
     # Generación de lista de frecuencias esperadas
 
     lista_frec_esperada = []
@@ -238,6 +244,7 @@ def calcular_frecuencia_esperada_poisson(lista_marca, lam, cant_muestras) -> lis
 
 
 def calcular_chi2(lista_frec_observada, lista_frec_esperada, distribucion) -> (float, float, int, float):
+
     # Agrupamiento de frecuencias de forma que cada valor de frecuencias esperadas sea >= 5:
 
     nuevo_fo = []
@@ -290,6 +297,7 @@ def calcular_chi2(lista_frec_observada, lista_frec_esperada, distribucion) -> (f
 
 
 def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, float):
+
     # Constantes
 
     cant_muestras = sum(lista_frec_observada)
@@ -319,55 +327,3 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
 # TRABAJO PRÁCTICO Nº3
 #
 # =====================================================================================================================
-
-# Vector = [semana, RNDPedido, pedido, RNDConsumo, consumo, stock, k0, km, ks, costoTotal, costoAcumulado]
-
-vector_inicial = [1, random.random(), ]
-
-
-def generar_simulacion(c_simulaciones, semana, semilla1, c_pedido, c_mantenimiento, c_sobrepaso,
-                       cant_sobrepaso, stock_inicial):
-
-    filas_guardadas = []
-    fila_anterior = [0, 0, 0, 0, 0, stock_inicial, 0, 0, 0, 0, 0]
-    for i in range(c_simulaciones):
-        prob_pedido = random.Random(semilla1).random()
-        prob_consumo = random.Random(math.sqrt(semilla1)).random()
-
-        fila_actual = iteracion_siguiente(fila_anterior, prob_pedido, prob_consumo, c_pedido, c_mantenimiento,
-                                          c_sobrepaso, cant_sobrepaso)
-
-        if semana <= (i + 1) <= semana + 500:
-            filas_guardadas.append(fila_actual)
-                
-    return filas_guardadas, fila_actual, fila_anterior
-
-
-def iteracion_siguiente(fila_actual, pr_pedido, pr_consumo, c_pedido, c_mantenimiento, c_sobrepaso, cant_sobrepaso):
-
-    semana = fila_actual[0] + 1
-    pedido = obtener_pedido(pr_pedido)
-    consumo = obtener_consumo(pr_consumo)
-    stock = pedido + fila_actual[5] - consumo
-    k0 = c_pedido
-    km = (c_mantenimiento * stock) if (stock > 0) else 0
-    ks = (stock - cant_sobrepaso) * c_sobrepaso if (stock > cant_sobrepaso) else 0
-    costo_total = k0 + km + ks
-    costo_acumulado = fila_actual[11] + costo_total
-
-    fila_nueva = [semana, pr_pedido, pedido, pr_consumo, consumo, stock, k0, km, ks, costo_total, costo_acumulado]
-
-    return fila_nueva
-
-
-def obtener_pedido(pr_pedido, tabla):
-    for i in range(len(tabla)):
-        if pr_pedido < tabla[[i], [1]]:
-            return tabla[[i], [0]]
-
-
-def obtener_consumo(pr_consumo, tabla):
-    for i in range(len(tabla)):
-        if pr_consumo < tabla[[i], [1]]:
-            return tabla[[i], [0]]
-
