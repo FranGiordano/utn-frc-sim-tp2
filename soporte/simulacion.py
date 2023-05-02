@@ -334,28 +334,19 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
     for i in range(len(probabilidades_pedido)):
         prob_acum_pedido.append(prob_acum_pedido[i] + probabilidades_pedido[i])
 
-    # Cálculos de costos de mantenimientos y de sobrepaso iniciales en caso de existir un stock inicial
-    if stock_inicial > inventario:
-        costo_mantenimiento_inicial = inventario * c_mantenimiento
-        costo_sobrepaso_inicial = (stock_inicial - inventario) * c_sobrepaso
-    else:
-        costo_mantenimiento_inicial = stock_inicial * c_mantenimiento
-        costo_sobrepaso_inicial = 0
-    costo_total_inicial = c_pedido + costo_mantenimiento_inicial + costo_sobrepaso_inicial
-
-    # Para la semana 0, se encarga un pedido de tal forma que exista uno para la semana 1
+    # Vector de estado de la semana 0
     fila_anterior = [
-        0,                                      # 0) Semana
-        0,                                      # 1) Probabilidad de consumo
-        0,                                      # 2) Consumo semanal
-        0,                                      # 3) Probabilidad de pedido
-        0,                                      # 4) Tamaño de pedido
-        stock_inicial,                          # 5) Stock
-        c_pedido,                               # 6) Costo de pedido
-        costo_mantenimiento_inicial,            # 7) Costo de mantenimiento
-        costo_sobrepaso_inicial,                # 8) Costo de sobrepaso
-        costo_total_inicial,                    # 9) Costo total
-        costo_total_inicial                     # 10) Costo total acumulado
+        0,                  # 0) Semana
+        0,                  # 1) Probabilidad de consumo
+        0,                  # 2) Consumo semanal
+        0,                  # 3) Probabilidad de pedido
+        0,                  # 4) Tamaño de pedido
+        stock_inicial,      # 5) Stock
+        0,                  # 6) Costo de pedido
+        0,                  # 7) Costo de mantenimiento
+        0,                  # 8) Costo de sobrepaso
+        0,                  # 9) Costo total
+        0                   # 10) Costo total acumulado
     ]
 
     # Ejecución de simulación por semana

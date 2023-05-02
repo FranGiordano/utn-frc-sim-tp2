@@ -17,6 +17,8 @@ class MonteCarloLavarropa:
         self.tamanios_pedido = None
         self.prob_acum_pedido = None
 
+    # MÉTODOS PÚBLICOS
+
     def establecer_tabla_demanda(self, lista_consumos_demanda, lista_probabilidades_demanda):
         """Establece los datos de la tabla de probabilidad de demanda"""
 
@@ -50,12 +52,7 @@ class MonteCarloLavarropa:
         filas_guardadas = []
         fila_actual = []
 
-        # Cálculos de costos de mantenimientos y de sobrepaso iniciales en caso de existir un stock inicial
-        costo_mantenimiento_inicial = self._calcular_costo_mantenimiento(self.stock_inicial)
-        costo_sobrepaso_inicial = self._calcular_costo_sobrepaso(self.stock_inicial)
-        costo_total_inicial = self.costo_pedido + costo_mantenimiento_inicial + costo_sobrepaso_inicial
-
-        # Para la semana 0, se encarga un pedido de tal forma que exista uno para la semana 1
+        # Vector de estado de la semana 0
         fila_anterior = [
             0,                              # 0) Semana
             0,                              # 1) Probabilidad de consumo
@@ -63,11 +60,11 @@ class MonteCarloLavarropa:
             0,                              # 3) Probabilidad de pedido
             0,                              # 4) Tamaño de pedido
             self.stock_inicial,             # 5) Stock
-            self.costo_pedido,              # 6) Costo de pedido
-            costo_mantenimiento_inicial,    # 7) Costo de mantenimiento
-            costo_sobrepaso_inicial,        # 8) Costo de sobrepaso
-            costo_total_inicial,            # 9) Costo total
-            costo_total_inicial             # 10) Costo total acumulado
+            0,                              # 6) Costo de pedido
+            0,                              # 7) Costo de mantenimiento
+            0,                              # 8) Costo de sobrepaso
+            0,                              # 9) Costo total
+            0                               # 10) Costo total acumulado
         ]
 
         # Ejecución de simulación por semana
@@ -83,6 +80,8 @@ class MonteCarloLavarropa:
                 fila_anterior = fila_actual
 
         return filas_guardadas, fila_actual, fila_anterior
+
+    # MÉTODOS PRIVADOS
 
     def _obtener_tamanio_pedido(self, prob_pedido):
         """Devuelve el tamaño de un pedido dada una probabilidad ingresada como parámetro"""
@@ -100,6 +99,7 @@ class MonteCarloLavarropa:
 
     def _calcular_costo_mantenimiento(self, stock):
         """Devuelve el costo de mantenimiento dado un stock"""
+
         if stock > self.capacidad_maxima:
             km = (self.capacidad_maxima * self.costo_mantenimiento)
         elif 0 < stock <= self.capacidad_maxima:
@@ -110,6 +110,7 @@ class MonteCarloLavarropa:
 
     def _calcular_costo_sobrepaso(self, stock):
         """Devuelve el costo de sobrepaso dado un stock"""
+
         if stock > self.capacidad_maxima:
             ks = (stock - self.capacidad_maxima) * self.costo_sobrepaso
         else:
@@ -117,6 +118,7 @@ class MonteCarloLavarropa:
         return ks
 
     def _calcular_siguiente_fila(self, fila_anterior):
+        """Devuelve la siguiente fila de la simulación"""
 
         # Cálculo del nuevo vector de estado
         semana = fila_anterior[0] + 1
