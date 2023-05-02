@@ -206,20 +206,20 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
     simulador.establecer_parametros_negocio(c_pedido, c_mantenimiento, c_sobrepaso, stock, inventario)
     filas_guardadas, fila_actual, fila_anterior = simulador.simular(simulaciones, semana)
 
-    datos_filas = {
+    datos_filas_guardadas = {
         "Semana": [fila[0] for fila in filas_guardadas],
         "Random 1": [round(fila[1], 2) for fila in filas_guardadas],
-        "Consumo semanal": [fila[2] for fila in filas_guardadas],
+        "Consumo semanal (m²)": ["{:,.0f}".format(fila[2]) for fila in filas_guardadas],
         "Random 2": [round(fila[3], 2) for fila in filas_guardadas],
-        "Tamaño de pedido": [fila[4] for fila in filas_guardadas],
-        "Stock": [fila[5] for fila in filas_guardadas],
-        "Costo de pedido": [fila[6] for fila in filas_guardadas],
-        "Costo de mantenimiento": [fila[7] for fila in filas_guardadas],
-        "Costo de sobrepaso": [fila[8] for fila in filas_guardadas],
-        "Costo total": [fila[9] for fila in filas_guardadas],
-        "Costo total acumulado": [fila[10] for fila in filas_guardadas],
+        "Tamaño de pedido (m²)": ["{:,.0f}".format(fila[4]) for fila in filas_guardadas],
+        "Stock": ["{:,.0f}".format(fila[5]) for fila in filas_guardadas],
+        "Costo de pedido": ["${:,.0f}".format(fila[6]) for fila in filas_guardadas],
+        "Costo de mantenimiento": ["${:,.0f}".format(fila[7]) for fila in filas_guardadas],
+        "Costo de sobrepaso": ["${:,.0f}".format(fila[8]) for fila in filas_guardadas],
+        "Costo total": ["${:,.0f}".format(fila[9]) for fila in filas_guardadas],
+        "Costo total acumulado": ["${:,.0f}".format(fila[10]) for fila in filas_guardadas],
     }
 
-    tabla_filas = crear_tabla(datos_filas)
+    tabla_filas = crear_tabla(datos_filas_guardadas)
 
     return False, tabla_filas
