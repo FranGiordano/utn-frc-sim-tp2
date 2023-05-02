@@ -14,7 +14,7 @@ def crear_parametros_montecarlo_simulacion():
         dbc.Col(id="form-semana-particular", children=[
             dbc.FormFloating([
                 dbc.Input(id="in_semana_particular", placeholder="Semana inicial a mostrar en tabla", type="number",
-                          min=0, value=0, required=True, step=1),
+                          min=1, value=1, required=True, step=1),
                 dbc.Label("Semana inicial a mostrar en tabla"),
             ])]),
 

@@ -388,10 +388,18 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
         k0 = c_pedido
 
         # 7) Costo de mantenimiento
-        km = (stock * c_mantenimiento) if stock <= inventario else (inventario * c_mantenimiento)
+        if stock > inventario:
+            km = (inventario * c_mantenimiento)
+        elif 0 < stock <= inventario:
+            km = (stock * c_mantenimiento)
+        else:
+            km = 0
 
         # 8) Costo de sobrepaso
-        ks = (stock - inventario) * c_sobrepaso if (stock > inventario) else 0
+        if stock > inventario:
+            ks = (stock - inventario) * c_sobrepaso
+        else:
+            ks = 0
 
         # 9) Costo total
         costo_total = c_pedido + km + ks

@@ -7,6 +7,7 @@ from components.tp3.tabla_demanda import crear_tabla_demanda
 from components.tp3.tabla_pedido import crear_tabla_pedido
 from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
 from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
+from components.general.tabla import crear_tabla
 import soporte.simulacion as sim
 import random as rd
 
@@ -43,7 +44,7 @@ layout = dbc.Container([
               id="toast_tp3", is_open=False, header="Simulación no generada.", duration=8000,
               style={"position": "fixed", "top": 66, "right": 10, "width": 350},),
 
-    dbc.Spinner(id="sp_resultados_tp3", children={}, color="primary", show_initially=False),
+    dbc.Spinner(id="sp_resultados_tp3", children={}, color="primary", show_initially=False, spinnerClassName="mt-3"),
 
 ])
 
@@ -194,7 +195,20 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
                                                                          consumos_demanda, probabilidades_demanda,
                                                                          tamanios_pedido, probabilidades_pedido)
 
-    print(fila_actual)
-    print(fila_anterior)
+    datos_filas = {
+        "Semana": [fila[0] for fila in filas_guardadas],
+        "Random 1": [round(fila[1], 2) for fila in filas_guardadas],
+        "Consumo semanal": [fila[2] for fila in filas_guardadas],
+        "Random 2": [round(fila[3], 2) for fila in filas_guardadas],
+        "Tamaño de pedido": [fila[4] for fila in filas_guardadas],
+        "Stock": [fila[5] for fila in filas_guardadas],
+        "Costo de pedido": [fila[6] for fila in filas_guardadas],
+        "Costo de mantenimiento": [fila[7] for fila in filas_guardadas],
+        "Costo de sobrepaso": [fila[8] for fila in filas_guardadas],
+        "Costo total": [fila[9] for fila in filas_guardadas],
+        "Costo total acumulado": [fila[10] for fila in filas_guardadas],
+    }
 
-    return False, html.Div("Todo correcto")
+    tabla_filas = crear_tabla(datos_filas)
+
+    return False, tabla_filas
