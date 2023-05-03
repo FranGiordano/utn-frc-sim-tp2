@@ -168,25 +168,11 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
 
     # Cálculo y generación de resultados
 
-    filas_guardadas, fila_actual, fila_anterior = generar_simulacion(simulaciones, semana, semilla, c_pedido,
-                                                                     c_mantenimiento, c_sobrepaso, stock, inventario,
-                                                                     consumos_demanda, probabilidades_demanda,
-                                                                     tamanios_pedido, probabilidades_pedido)
+    filas_guardadas = generar_simulacion(simulaciones, semana, semilla, c_pedido, c_mantenimiento, c_sobrepaso, stock,
+                                         inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido,
+                                         probabilidades_pedido)
 
-    """
-    # OPCIÓN ALTERNATIVA UTILIZANDO UNA CLASE Y MÉTODOS
-    
-    from soporte.montecarlo import MonteCarloLavarropa
-
-    simulador = MonteCarloLavarropa(semilla)
-    simulador.establecer_tabla_demanda(consumos_demanda, probabilidades_demanda)
-    simulador.establecer_tabla_pedido(tamanios_pedido, probabilidades_pedido)
-    simulador.establecer_parametros_negocio(c_pedido, c_mantenimiento, c_sobrepaso, stock, inventario)
-    filas_guardadas, fila_actual, fila_anterior = simulador.simular(simulaciones, semana)
-    
-    """
-
-    datos_filas_guardadas = {
+    datos_tabla = {
         "Semana": [fila[0] for fila in filas_guardadas],
         "Random 1": [round(fila[1], 2) for fila in filas_guardadas],
         "Consumo semanal (m²)": ["{:,.0f}".format(fila[2]) for fila in filas_guardadas],
@@ -198,8 +184,15 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
         "Costo de sobrepaso": ["${:,.0f}".format(fila[8]) for fila in filas_guardadas],
         "Costo total": ["${:,.0f}".format(fila[9]) for fila in filas_guardadas],
         "Costo total acumulado": ["${:,.0f}".format(fila[10]) for fila in filas_guardadas],
+        "Promedio de costo total": ["${:,.0f}".format(fila[11]) for fila in filas_guardadas],
+        "Diferencia de stock": ["{:,.0f}".format(fila[12]) for fila in filas_guardadas],
+        "Diferencia de stock acumulado": ["{:,.0f}".format(fila[13]) for fila in filas_guardadas],
+        "Promedio de crecimiento semanal de stock": ["{:,.0f}".format(fila[14]) for fila in filas_guardadas],
+        "Cantidad de semanas que debemos pedidos": ["{:,.0f}".format(fila[15]) for fila in filas_guardadas],
+        "Porcentaje de semanas que debemos pedidos": ["{:.0f}%".format(fila[16]*100) for fila in filas_guardadas],
+        "Semana donde el stock supera la cap. máx.": ["{:,.0f}".format(fila[17]) for fila in filas_guardadas],
     }
 
-    tabla_filas = crear_tabla(datos_filas_guardadas)
+    tabla = crear_tabla(datos_tabla)
 
-    return False, tabla_filas
+    return False, tabla

@@ -316,7 +316,7 @@ def calcular_ks(lista_frec_observada, lista_frec_esperada) -> (float, float, flo
 # =====================================================================================================================
 
 def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_mantenimiento, c_sobrepaso, stock_inicial,
-                       inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido, probabilidades_pedido):
+                       capacidad_maxima, consumos_demanda, probabilidades_demanda, tamanios_pedido, probabilidades_pedido):
 
     # Seteo de semilla
     generador_nros_aleatorios = rd.Random(semilla)
@@ -346,7 +346,14 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
         0,                  # 7) Costo de mantenimiento
         0,                  # 8) Costo de sobrepaso
         0,                  # 9) Costo total
-        0                   # 10) Costo total acumulado
+        0,                  # 10) Costo total acumulado
+        0,                  # 11) Promedio de costo total -> Métrica 1
+        0,                  # 12) Diferencia de stock
+        0,                  # 13) Diferencia de stock acumulado
+        0,                  # 14) Promedio de crecimiento semanal de stock -> Métrica 2
+        0,                  # 15) Contador semanas que debemos pedidos
+        0,                  # 16) Porcentaje de semanas que debemos pedidos -> Métrica 3
+        0,                  # 17) Semana aproximada donde el stock supera el inventario -> Métrica 4
     ]
 
     # Ejecución de simulación por semana
@@ -372,22 +379,22 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
                 pedido = tamanios_pedido[j]
 
         # 5) Stock
-        stock = pedido + fila_anterior[5] - consumo
+        stock = fila_anterior[5] + pedido - consumo
 
         # 6) Costo de pedido
         k0 = c_pedido
 
         # 7) Costo de mantenimiento
-        if stock > inventario:
-            km = (inventario * c_mantenimiento)
-        elif 0 < stock <= inventario:
+        if stock > capacidad_maxima:
+            km = (capacidad_maxima * c_mantenimiento)
+        elif 0 < stock <= capacidad_maxima:
             km = (stock * c_mantenimiento)
         else:
             km = 0
 
         # 8) Costo de sobrepaso
-        if stock > inventario:
-            ks = (stock - inventario) * c_sobrepaso
+        if stock > capacidad_maxima:
+            ks = (stock - capacidad_maxima) * c_sobrepaso
         else:
             ks = 0
 
@@ -396,6 +403,33 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
 
         # 10) Costo total acumulado
         costo_total_acumulado = fila_anterior[10] + costo_total
+
+        # 11) Promedio de costo total -> Métrica 1
+        promedio_costo_total = costo_total_acumulado / semana
+
+        # 12) Diferencia de stock
+        diferencia_stock = stock - fila_anterior[5]
+
+        # 13) Diferencia de stock acumulado
+        diferencia_stock_acumulado = fila_anterior[13] + diferencia_stock
+
+        # 14) Promedio de crecimiento semanal de stock
+        promedio_crecimiento_semanal_stock = diferencia_stock_acumulado/semana
+
+        # 15) Contador semanas que debemos pedidos
+        if stock < 0:
+            contador_semanas_debe_pedidos = 1 + fila_anterior[15]
+        else:
+            contador_semanas_debe_pedidos = fila_anterior[15]
+
+        # 16) Porcentaje de semanas que debemos pedidos
+        porcentaje_semanas_debe_pedidos = contador_semanas_debe_pedidos/semana
+
+        # 17) Semana aproximada donde el stock supera el inventario
+        if promedio_crecimiento_semanal_stock != 0:
+            semana_supera_inventario = capacidad_maxima / promedio_crecimiento_semanal_stock
+        else:
+            semana_supera_inventario = 0
 
         # Asignación de valores procesados a una nueva fila
         fila_actual = [
@@ -409,7 +443,14 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
             km,
             ks,
             costo_total,
-            costo_total_acumulado
+            costo_total_acumulado,
+            promedio_costo_total,
+            diferencia_stock,
+            diferencia_stock_acumulado,
+            promedio_crecimiento_semanal_stock,
+            contador_semanas_debe_pedidos,
+            porcentaje_semanas_debe_pedidos,
+            semana_supera_inventario
         ]
 
         # En el caso de que la semana esté dentro del rango a grabar, se lo adjunta en una lista
@@ -419,8 +460,13 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
         if i != (c_simulaciones - 1):
             fila_anterior = fila_actual
 
+    if not (semana_a_grabar <= (fila_anterior[0] + 1) < semana_a_grabar + 500):
+        filas_guardadas.append(fila_anterior)
+    if not (semana_a_grabar <= (fila_actual[0] + 1) < semana_a_grabar + 500):
+        filas_guardadas.append(fila_actual)
+
     # Retorno de datos
-    return filas_guardadas, fila_actual, fila_anterior
+    return filas_guardadas
 
 
 # =====================================================================================================================
@@ -457,6 +503,7 @@ if __name__ == "__main__":
 
     import time
 
+    print("Ejecución inicializada")
     start = time.time()
     test_montecarlo()
     end = time.time()
