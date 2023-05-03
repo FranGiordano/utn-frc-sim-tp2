@@ -48,11 +48,9 @@ layout = dbc.Container([
 ])
 
 
-# Callback para añadir una fila a la tabla demanda y actualizar alertas correspondientes
+# Callback para añadir una fila a la tabla demanda
 @callback(
-    Output("tabla_demanda", "data", allow_duplicate=True),
-    Output("alerta_demanda", "children", allow_duplicate=True),
-    Output("alerta_demanda", "color", allow_duplicate=True),
+    Output("tabla_demanda", "data"),
     Input("btn_crear_fila_demanda", "n_clicks"),
     State("in_demanda_consumo", "value"),
     State("in_demanda_probabilidad", "value"),
@@ -61,53 +59,37 @@ layout = dbc.Container([
 )
 def crear_fila_tabla_demanda(n_clicks, consumo, probabilidad, filas):
 
-    suma_probabilidades = round(sum([fila["probabilidad"] for fila in filas]), 2)
-
     if None in [consumo, probabilidad]:
-        return no_update, no_update, no_update
+        return no_update
 
-    fila = {"consumo": consumo, "probabilidad": probabilidad}
-
-    suma_probabilidades = round(suma_probabilidades + probabilidad, 2)
-
-    bandera_repetido = False
+    # Busca si el consumo ya se encuentra en la tabla y suma la probabilidad, en caso contrario crea una fila
     for fila in filas:
         if fila["consumo"] == consumo:
             fila["probabilidad"] = round(fila["probabilidad"] + probabilidad, 2)
-            bandera_repetido = True
-
-    if not bandera_repetido:
-        filas.append(fila)
-
-    if suma_probabilidades == 1:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
+            break
     else:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "warning"
+        filas.append({"consumo": consumo, "probabilidad": probabilidad})
+
+    return filas
 
 
-# Callback para actualizar alertas correspondientes al eliminar fila de tabla demanda
+# Callback para actualizar alertas correspondientes al eliminar o añadir fila de tabla demanda
+# Tener en cuenta que este callback se ejecuta siempre que se ejecute la función crear_fila_tabla_demanda
 @callback(
-    Output("tabla_demanda", "data", allow_duplicate=True),
-    Output("alerta_demanda", "children", allow_duplicate=True),
-    Output("alerta_demanda", "color", allow_duplicate=True),
+    Output("alerta_demanda", "children"),
+    Output("alerta_demanda", "color"),
     Input("tabla_demanda", "data"),
     prevent_initial_call=True
 )
 def actualizar_alertas_tabla_demanda(filas):
-
     suma_probabilidades = round(sum([fila["probabilidad"] for fila in filas]), 2)
-
-    if suma_probabilidades == 1:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
-    else:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "warning"
+    color = "success" if suma_probabilidades == 1 else "warning"
+    return f"Probabilidad acumulada: {suma_probabilidades}", color
 
 
-# Callback para añadir una fila a la tabla pedido y actualizar alertas correspondientes
+# Callback para añadir una fila a la tabla pedido
 @callback(
-    Output("tabla_pedido", "data", allow_duplicate=True),
-    Output("alerta_pedido", "children", allow_duplicate=True),
-    Output("alerta_pedido", "color", allow_duplicate=True),
+    Output("tabla_pedido", "data"),
     Input("btn_crear_fila_pedido", "n_clicks"),
     State("in_pedido_tamanio", "value"),
     State("in_pedido_probabilidad", "value"),
@@ -116,46 +98,32 @@ def actualizar_alertas_tabla_demanda(filas):
 )
 def crear_fila_tabla_pedido(n_clicks, tamanio, probabilidad, filas):
 
-    suma_probabilidades = round(sum([fila["probabilidad"] for fila in filas]), 2)
-
     if None in [tamanio, probabilidad]:
-        return no_update, no_update, no_update
+        return no_update
 
-    fila = {"pedido": tamanio, "probabilidad": probabilidad}
-
-    suma_probabilidades = round(suma_probabilidades + probabilidad, 2)
-
-    bandera_repetido = False
+    # Busca si el pedido ya se encuentra en la tabla y suma la probabilidad, en caso contrario crea una fila
     for fila in filas:
         if fila["pedido"] == tamanio:
             fila["probabilidad"] = round(fila["probabilidad"] + probabilidad, 2)
-            bandera_repetido = True
-
-    if not bandera_repetido:
-        filas.append(fila)
-
-    if suma_probabilidades == 1:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
+            break
     else:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "warning"
+        filas.append({"pedido": tamanio, "probabilidad": probabilidad})
+
+    return filas
 
 
-# Callback para actualizar alertas correspondientes al eliminar fila de tabla pedido
+# Callback para actualizar alertas correspondientes al eliminar o añadir fila de tabla pedido
+# Tener en cuenta que este callback se ejecuta siempre que se ejecute la función crear_fila_tabla_pedido
 @callback(
-    Output("tabla_pedido", "data", allow_duplicate=True),
-    Output("alerta_pedido", "children", allow_duplicate=True),
-    Output("alerta_pedido", "color", allow_duplicate=True),
+    Output("alerta_pedido", "children"),
+    Output("alerta_pedido", "color"),
     Input("tabla_pedido", "data"),
     prevent_initial_call=True
 )
 def actualizar_alertas_tabla_pedido(filas):
-
     suma_probabilidades = round(sum([fila["probabilidad"] for fila in filas]), 2)
-
-    if suma_probabilidades == 1:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "success"
-    else:
-        return filas, f"Probabilidad acumulada: {suma_probabilidades}", "warning"
+    color = "success" if suma_probabilidades == 1 else "warning"
+    return f"Probabilidad acumulada: {suma_probabilidades}", color
 
 
 # Callback para el proceso de simulación y generación de resultados
@@ -206,7 +174,7 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
                                                                      tamanios_pedido, probabilidades_pedido)
 
     """
-    # OPCIÓN ALTERNATIVA
+    # OPCIÓN ALTERNATIVA UTILIZANDO UNA CLASE Y MÉTODOS
     
     from soporte.montecarlo import MonteCarloLavarropa
 
