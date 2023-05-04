@@ -7,7 +7,7 @@ def crear_parametros_montecarlo_simulacion():
         dbc.Col(id="form-cantidad-simulaciones", children=[
             dbc.FormFloating([
                 dbc.Input(id="in_cantidad_simulaciones", placeholder="Cantidad de simulaciones", type="number",
-                          min=1, value=100000, required=True, step=1),
+                          min=1, value=100000, required=True, max=100000000, step=1),
                 dbc.Label("Cantidad de simulaciones"),
             ])]),
 
