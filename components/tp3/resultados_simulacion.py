@@ -61,7 +61,7 @@ def crear_resultados_simulacion(filas_guardadas):
 
     promedio_crecimiento_semanal_stock = datos_tabla['Promedio de crecimiento semanal de stock'][-1]
     insight3 = f"3) En promedio, el crecimiento semanal del stock es de {promedio_crecimiento_semanal_stock} m²."
-    if float(promedio_crecimiento_semanal_stock) > 0:
+    if int(promedio_crecimiento_semanal_stock.replace(",", "")) > 0:
         insight3 += f" Esto implica que el inventario disponible ingresado alcanzará su máxima capacidad en " \
                    f"aproximadamente {datos_tabla['Promedio semanas hasta overflow de inventario'][-1]} semanas."
 
