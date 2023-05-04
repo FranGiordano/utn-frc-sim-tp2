@@ -95,7 +95,7 @@ def crear_resultados_simulacion(filas_guardadas):
                    "valor aproximado a 0.",
                    className="card-text")
         ])
-    ], color="primary", inverse=True, className="mt-3")
+    ], color="primary", inverse=True, className="mt-3 mb-3")
 
     resultado = html.Div([
         html.Center(html.H2("Resultados"), className="mt-3"),
