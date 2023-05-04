@@ -1,13 +1,13 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import html, State, Input, Output, callback, no_update
+from dash import html, State, Input, Output, callback, no_update, dcc
 from components.tp3.parametros_montecarlo_negocio import crear_parametros_montecarlo_negocio
 from components.tp3.parametros_montecarlo_simulacion import crear_parametros_montecarlo_simulacion
 from components.tp3.tabla_demanda import crear_tabla_demanda
 from components.tp3.tabla_pedido import crear_tabla_pedido
 from components.tp3.parametros_tabla_pedido import crear_parametros_tabla_pedido
 from components.tp3.parametros_tabla_demanda import crear_parametros_tabla_demanda
-from components.general.tabla import crear_tabla
+from components.tp3.resultados_simulacion import crear_resultados_simulacion
 from soporte.simulacion import generar_simulacion
 
 dash.register_page(__name__,
@@ -39,12 +39,11 @@ layout = dbc.Container([
 
     ], className="mt-3"),
 
+    dcc.Loading(id="sp_resultados_tp3", children=html.Div(style={"height": "400px"}), className="gif-loading"),
+
     dbc.Toast("Los datos ingresados no son válidos, revíselos nuevamente.", icon="danger", dismissable=True,
               id="toast_tp3", is_open=False, header="Simulación no generada.", duration=8000,
               style={"position": "fixed", "top": 66, "right": 10, "width": 350},),
-
-    dbc.Spinner(id="sp_resultados_tp3", children={}, color="primary", show_initially=False, spinnerClassName="mt-3"),
-
 ])
 
 
@@ -172,27 +171,6 @@ def arrancar_la_simulacion(n_clicks, inventario, stock, c_sobrepaso, c_mantenimi
                                          inventario, consumos_demanda, probabilidades_demanda, tamanios_pedido,
                                          probabilidades_pedido)
 
-    datos_tabla = {
-        "Semana": [fila[0] for fila in filas_guardadas],
-        "Random 1": [round(fila[1], 2) for fila in filas_guardadas],
-        "Consumo semanal (m²)": ["{:,.0f}".format(fila[2]) for fila in filas_guardadas],
-        "Random 2": [round(fila[3], 2) for fila in filas_guardadas],
-        "Tamaño de pedido (m²)": ["{:,.0f}".format(fila[4]) for fila in filas_guardadas],
-        "Stock": ["{:,.0f}".format(fila[5]) for fila in filas_guardadas],
-        "Costo de pedido": ["${:,.0f}".format(fila[6]) for fila in filas_guardadas],
-        "Costo de mantenimiento": ["${:,.0f}".format(fila[7]) for fila in filas_guardadas],
-        "Costo de sobrepaso": ["${:,.0f}".format(fila[8]) for fila in filas_guardadas],
-        "Costo total": ["${:,.0f}".format(fila[9]) for fila in filas_guardadas],
-        "Costo total acumulado": ["${:,.0f}".format(fila[10]) for fila in filas_guardadas],
-        "Promedio de costo total": ["${:,.0f}".format(fila[11]) for fila in filas_guardadas],
-        "Diferencia de stock": ["{:,.0f}".format(fila[12]) for fila in filas_guardadas],
-        "Diferencia de stock acumulado": ["{:,.0f}".format(fila[13]) for fila in filas_guardadas],
-        "Promedio de crecimiento semanal de stock": ["{:,.0f}".format(fila[14]) for fila in filas_guardadas],
-        "Cantidad de semanas que debemos pedidos": ["{:,.0f}".format(fila[15]) for fila in filas_guardadas],
-        "Porcentaje de semanas que debemos pedidos": ["{:.0f}%".format(fila[16]*100) for fila in filas_guardadas],
-        "Semana donde el stock supera la cap. máx.": ["{:,.0f}".format(fila[17]) for fila in filas_guardadas],
-    }
+    resultados_simulacion = crear_resultados_simulacion(filas_guardadas)
 
-    tabla = crear_tabla(datos_tabla)
-
-    return False, tabla
+    return False, resultados_simulacion

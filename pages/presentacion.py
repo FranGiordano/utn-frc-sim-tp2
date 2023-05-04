@@ -55,7 +55,7 @@ layout = dbc.Container([
         dbc.Col([
             dbc.Card(
                 [
-                    dbc.CardImg(src="/assets/cards/progreso.png", top=True),
+                    dbc.CardImg(src="/assets/cards/tp3.png", top=True),
                     dbc.CardBody(
                         [
                             html.H4("TP3: Simulación de Monte Carlo", className="card-title"),

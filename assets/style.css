@@ -35,7 +35,7 @@ H1, H2, H3, H4 {
   display: inline-block;
   width: 2rem;
   height: 2rem;
-  color: black;
+  color: dodgerblue;
   vertical-align: text-bottom;
   border: 0.25em solid currentColor;
   border-right-color: transparent;
@@ -45,14 +45,17 @@ H1, H2, H3, H4 {
   margin-top: 2rem;
 }
 
-.table-wrapper {
-  overflow: hidden auto;
-  position: relative;
-  max-height: 300px;
+.dash-spinner * {
+  display: none !important;
 }
 
-.table-wrapper > table > thead {
-  position: sticky;
-  top: 0;
-  background: lightgray;
+.gif-loading {
+  margin: 1rem auto;
+  width: 480px;
+  height: 270px;
+  text-align: center;
+  font-size: 10px;
+  background-image: url("gifs/lavadora.gif");
+  background-size: contain;
+  background-repeat: no-repeat;
 }
