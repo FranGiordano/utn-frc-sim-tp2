@@ -427,7 +427,7 @@ def generar_simulacion(c_simulaciones, semana_a_grabar, semilla, c_pedido, c_man
 
         # 17) Semana aproximada donde el stock supera el inventario
         if promedio_crecimiento_semanal_stock != 0:
-            semana_supera_inventario = capacidad_maxima / promedio_crecimiento_semanal_stock
+            semana_supera_inventario = (capacidad_maxima - stock_inicial) / promedio_crecimiento_semanal_stock
         else:
             semana_supera_inventario = 0
 
