@@ -49,6 +49,7 @@ layout = dbc.Container([
                     ),
                 ],
                 style={"width": "18rem"},
+                className="mx-auto"
             ),
         ]),
 
@@ -69,52 +70,28 @@ layout = dbc.Container([
                     ),
                 ],
                 style={"width": "18rem"},
+                className="mx-auto"
             ),
         ]),
 
         dbc.Col([
             dbc.Card(
                 [
-                    dbc.CardImg(src="/assets/cards/progreso.png", top=True),
+                    dbc.CardImg(src="/assets/cards/tp4.jpg", top=True),
                     dbc.CardBody(
                         [
                             html.H4("TP4: Modelos de Simulación Dinámicos", className="card-title"),
                             html.P(
-                                "-",
+                                "Ejecución de una simulación de líneas de espera (colas) para la simulación del sistema"
+                                " de atención de pasajeros de la estación de tren de Córdoba.",
                                 className="card-text", style={"text-align": "justify"}
                             ),
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            dbc.Button("En progreso", color="secondary", href="/tp4/", disabled=True),
+                            dbc.Button("Ir al proyecto", color="primary", href="/tp4/"),
                         ]
                     ),
                 ],
                 style={"width": "18rem"},
-            ),
-        ]),
-
-        dbc.Col([
-            dbc.Card(
-                [
-                    dbc.CardImg(src="/assets/cards/progreso.png", top=True),
-                    dbc.CardBody(
-                        [
-                            html.H4("TP5: Modelos de Simulación Complejos", className="card-title"),
-                            html.P(
-                                "-",
-                                className="card-text", style={"text-align": "justify"}
-                            ),
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            html.Br(),
-                            dbc.Button("En progreso", color="secondary", href="/tp5/", disabled=True),
-                        ]
-                    ),
-                ],
-                style={"width": "18rem"},
+                className="mx-auto"
             ),
         ])
 
