@@ -88,7 +88,7 @@ class SistemaColas:
 
         vector_estado = [
             0,  # 0. Nro Iteración
-            0,  # 1. Reloj
+            0,  # 1. Reloj (horas transcurridas)
             "Inicio simulación",  # 2. Evento
             None,  # 3. Random 1
             None,  # 4. Tiempo entre llegada pasajeros
@@ -435,7 +435,8 @@ class SistemaColas:
         """Método que se ejecuta ante el evento Fin atención ventanilla auxiliar
 
         Se acordó en este caso que la ventanilla auxiliar abre teniendo en cuenta un parámetro configurables
-        que debe ser >6 y <15, y cierra en el final de la hora crítica.
+        que debe ser mayor que el inicio de hora crítica y menor que el inicio de hora moderada,
+        y cierra en el final de la hora crítica.
         """
 
         # Marcamos al pasajero como atendido:
