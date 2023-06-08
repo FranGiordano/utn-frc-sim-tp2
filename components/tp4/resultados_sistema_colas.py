@@ -8,68 +8,60 @@ def crear_resultados_simulacion(filas):
     tabla = dash_table.DataTable(
 
         columns=[
-            {"name": ["", "Iteración"], "id": "iteracion"},
-            {"name": ["", "Reloj"], "id": "reloj"},
-            {"name": ["", "Evento"], "id": "evento"},
-            {"name": ["Llegada pasajero", "Random 1"], "id": "random1"},
-            {"name": ["Llegada pasajero", "Tiempo entre llegadas"], "id": "tiempo_entre_llegada_pasajero"},
-            {"name": ["Llegada pasajero", "Próxima llegada"], "id": "proxima_llegada_pasajero"},
-            {"name": ["Llegada pasajero", "Random 2"], "id": "random2"},
-            {"name": ["Llegada pasajero", "Próximo tipo de atención"], "id": "proximo_tipo_atencion"},
-            {"name": ["Llegada mecánico", "Tiempo entre llegadas"], "id": "tiempo_entre_llegada_mecanico"},
-            {"name": ["Llegada mecánico", "Próxima llegada"], "id": "proxima_llegada_mecanico"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Random 1"], "id": "random3"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Tiempo fin atención"],
-             "id": "tiempo_fin_atencion_inmediata"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Estado 1"], "id": "estado_inmediata_1"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Próximo fin atención 1"],
-             "id": "proximo_fin_atencion_inmed_1"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Cliente siendo atendido 1"],
-             "id": "cliente_atendido_inmed_1"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Estado 2"], "id": "estado_inmediata_2"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Próximo fin atención 2"],
-             "id": "proximo_fin_atencion_inmed_2"},
-            {"name": ["Ventanilla salida inmediata 1 y 2", "Cliente siendo atendido 2"],
-             "id": "cliente_atendido_inmed_2"},
-            {"name": ["Ventanilla salida anticipada", "Estado"], "id": "estado_anticipada"},
-            {"name": ["Ventanilla salida anticipada", "Random"], "id": "random4"},
-            {"name": ["Ventanilla salida anticipada", "Tiempo fin atención"], "id": "tiempo_fin_atencion_anticipada"},
-            {"name": ["Ventanilla salida anticipada", "Próximo fin atención"], "id": "proximo_fin_atencion_anticipada"},
-            {"name": ["Ventanilla salida anticipada", "Cliente siendo atendido"], "id": "cliente_atendido_anticipada"},
-            {"name": ["Ventanilla auxiliar", "Estado"], "id": "estado_auxiliar"},
-            {"name": ["Ventanilla auxiliar", "Random"], "id": "random5"},
-            {"name": ["Ventanilla auxiliar", "Tiempo fin atención"], "id": "tiempo_fin_atencion_auxiliar"},
-            {"name": ["Ventanilla auxiliar", "Próximo fin atención"], "id": "proximo_fin_atencion_auxiliar"},
-            {"name": ["Ventanilla auxiliar", "Cliente siendo atendido"], "id": "cliente_atendido_auxiliar"},
-            {"name": ["Máquina", "Estado"], "id": "estado_maquina"},
-            {"name": ["Máquina", "Random 1"], "id": "random6"},
-            {"name": ["Máquina", "Tiempo fin atención"], "id": "tiempo_fin_atencion_maquina"},
-            {"name": ["Máquina", "Próximo fin atención"], "id": "proximo_fin_atencion_maquina"},
-            {"name": ["Máquina", "Cliente siendo atendido"], "id": "cliente_atendido_maquina"},
-            {"name": ["Máquina", "Random 2"], "id": "random7"},
-            {"name": ["Máquina", "Random 3"], "id": "random8"},
-            {"name": ["Máquina", "Tiempo fin mantenimiento"], "id": "tiempo_fin_mantenimiento"},
-            {"name": ["Máquina", "Próximo fin mantenimiento"], "id": "proximo_fin_mantenimiento"},
-            {"name": ["Otros eventos", "Próximo fin impaciencia"], "id": "proximo_fin_impaciencia"},
-            {"name": ["Otros eventos", "Próximo inicio hora crítica"], "id": "proximo_inicio_hora_critica"},
-            {"name": ["Otros eventos", "Próximo inicio hora ventanilla auxiliar"],
-             "id": "proximo_inicio_hora_auxiliar"},
-            {"name": ["Otros eventos", "Próximo inicio hora moderada"], "id": "proximo_inicio_hora_moderada"},
-            {"name": ["Otros eventos", "Próximo fin hora moderada"], "id": "proximo_fin_hora_moderada"},
-            {"name": ["Colas", "Cola salida inmediata"], "id": "cola_salida_inmediata"},
-            {"name": ["Colas", "Cola salida anticipada"], "id": "cola_salida_anticipada"},
-            {"name": ["Colas", "Cola máquina"], "id": "cola_maquina"},
-            {"name": ["Contadores", "Pasajeros anticipada que entraron a ventanilla"], "id": "ctd_antic_ventanilla"},
-            {"name": ["Contadores", "Pasajeros anticipada que no entraron a ventanilla"],
-             "id": "ctd_antic_no_ventanilla"},
-            {"name": ["Contadores", "Pasajeros atendidos en máquina"], "id": "ctd_atendidos_maquina"},
-            {"name": ["Contadores", "Pasajeros interrumpidos en máquina"], "id": "ctd_interrumpidos_maquina"},
-            {"name": ["Acumuladores", "Tiempo ventanilla inmediata 1 en estado libre"], "id": "acum_inmed1_libre"},
-            {"name": ["Acumuladores", "Tiempo ventanilla inmediata 1 en estado ocupado"], "id": "acum_inmed1_ocupado"},
-            {"name": ["Métricas", "Porcentaje ocupación ventanilla inmediata 1"], "id": "pct_ocup_inmed1"},
-            {"name": ["Métricas", "Porcentaje pasajeros anticipada que perdieron el tren"], "id": "pct_perdieron_tren"},
-            {"name": ["Métricas", "Porcentaje pasajeros interrumpidos al usar la máquina"],
-             "id": "pct_interrumpidos_maq"},
+            {"name": "N", "id": "iteracion"},
+            {"name": "Reloj", "id": "reloj"},
+            {"name": "Evento", "id": "evento"},
+            {"name": "Random 1", "id": "random1"},
+            {"name": "Tiempo entre llegadas", "id": "tiempo_entre_llegada_pasajero"},
+            {"name": "Próxima llegada", "id": "proxima_llegada_pasajero"},
+            {"name": "Random 2", "id": "random2"},
+            {"name": "Próximo tipo de atención", "id": "proximo_tipo_atencion"},
+            {"name": "Tiempo entre llegadas", "id": "tiempo_entre_llegada_mecanico"},
+            {"name": "Próxima llegada", "id": "proxima_llegada_mecanico"},
+            {"name": "Random 1", "id": "random3"},
+            {"name": "Tiempo fin atención", "id": "tiempo_fin_atencion_inmediata"},
+            {"name": "Estado 1", "id": "estado_inmediata_1"},
+            {"name": "Próximo fin atención 1", "id": "proximo_fin_atencion_inmed_1"},
+            {"name": "Cliente siendo atendido 1", "id": "cliente_atendido_inmed_1"},
+            {"name": "Estado 2", "id": "estado_inmediata_2"},
+            {"name": "Próximo fin atención 2", "id": "proximo_fin_atencion_inmed_2"},
+            {"name": "Cliente siendo atendido 2", "id": "cliente_atendido_inmed_2"},
+            {"name": "Estado", "id": "estado_anticipada"},
+            {"name": "Random", "id": "random4"},
+            {"name": "Tiempo fin atención", "id": "tiempo_fin_atencion_anticipada"},
+            {"name": "Próximo fin atención", "id": "proximo_fin_atencion_anticipada"},
+            {"name": "Cliente siendo atendido", "id": "cliente_atendido_anticipada"},
+            {"name": "Estado", "id": "estado_auxiliar"},
+            {"name": "Random", "id": "random5"},
+            {"name": "Tiempo fin atención", "id": "tiempo_fin_atencion_auxiliar"},
+            {"name": "Próximo fin atención", "id": "proximo_fin_atencion_auxiliar"},
+            {"name": "Cliente siendo atendido", "id": "cliente_atendido_auxiliar"},
+            {"name": "Estado", "id": "estado_maquina"},
+            {"name": "Random 1", "id": "random6"},
+            {"name": "Tiempo fin atención", "id": "tiempo_fin_atencion_maquina"},
+            {"name": "Próximo fin atención", "id": "proximo_fin_atencion_maquina"},
+            {"name": "Cliente siendo atendido", "id": "cliente_atendido_maquina"},
+            {"name": "Random 2", "id": "random7"},
+            {"name": "Random 3", "id": "random8"},
+            {"name": "Tiempo fin mantenimiento", "id": "tiempo_fin_mantenimiento"},
+            {"name": "Próximo fin mantenimiento", "id": "proximo_fin_mantenimiento"},
+            {"name": "Próximo fin impaciencia", "id": "proximo_fin_impaciencia"},
+            {"name": "Próximo inicio hora crítica", "id": "proximo_inicio_hora_critica"},
+            {"name": "Próximo inicio hora ventanilla auxiliar", "id": "proximo_inicio_hora_auxiliar"},
+            {"name": "Próximo inicio hora moderada", "id": "proximo_inicio_hora_moderada"},
+            {"name": "Próximo fin hora moderada", "id": "proximo_fin_hora_moderada"},
+            {"name": "Cola salida inmediata", "id": "cola_salida_inmediata"},
+            {"name": "Cola salida anticipada", "id": "cola_salida_anticipada"},
+            {"name": "Cola máquina", "id": "cola_maquina"},
+            {"name": "Pasajeros anticipada que entraron a ventanilla", "id": "ctd_antic_ventanilla"},
+            {"name": "Pasajeros anticipada que no entraron a ventanilla", "id": "ctd_antic_no_ventanilla"},
+            {"name": "Pasajeros atendidos en máquina", "id": "ctd_atendidos_maquina"},
+            {"name": "Pasajeros interrumpidos en máquina", "id": "ctd_interrumpidos_maquina"},
+            {"name": "Tiempo ventanilla inmediata 1 en estado libre", "id": "acum_inmed1_libre"},
+            {"name": "Tiempo ventanilla inmediata 1 en estado ocupado", "id": "acum_inmed1_ocupado"},
+            {"name": "Porcentaje ocupación ventanilla inmediata 1", "id": "pct_ocup_inmed1"},
+            {"name": "Porcentaje pasajeros anticipada que perdieron el tren", "id": "pct_perdieron_tren"},
+            {"name": "Porcentaje pasajeros interrumpidos al usar la máquina", "id": "pct_interrumpidos_maq"}
         ],
 
         data=[
@@ -125,38 +117,156 @@ def crear_resultados_simulacion(filas):
                 "ctd_interrumpidos_maquina": i[45],
                 "acum_inmed1_libre": f"{i[46]:.4f}" if i[46] is not None else "",
                 "acum_inmed1_ocupado": f"{i[47]:.4f}" if i[47] is not None else "",
-                "pct_ocup_inmed1": f"{i[48] * 100:.4f}%" if i[48] is not None else "",
+                "pct_ocup_inmed1": f"{i[48] * 100:.2f}%" if i[48] is not None else "",
                 "pct_perdieron_tren": f"{i[49] * 100:.2f}%" if i[49] is not None else "",
                 "pct_interrumpidos_maq": f"{i[50] * 100:.2f}%" if i[50] is not None else ""
             }
             for i in filas
         ],
 
+        style_cell_conditional=[
+            {
+                "if": {
+                    "column_id": ["random1",
+                                  "tiempo_entre_llegada_pasajero",
+                                  "proxima_llegada_pasajero",
+                                  "random2",
+                                  "proximo_tipo_atencion"]
+                },
+                "backgroundColor": "#84B6F4",
+            },
+            {
+                "if": {
+                    "column_id": ["tiempo_entre_llegada_mecanico",
+                                  "proxima_llegada_mecanico"]
+                },
+                "backgroundColor": "#FDCAE1",
+            },
+            {
+                "if": {
+                    "column_id": ["random3",
+                                  "tiempo_fin_atencion_inmediata",
+                                  "estado_inmediata_1",
+                                  "proximo_fin_atencion_inmed_1",
+                                  "cliente_atendido_inmed_1",
+                                  "estado_inmediata_2",
+                                  "proximo_fin_atencion_inmed_2",
+                                  "cliente_atendido_inmed_2"]
+                },
+                "backgroundColor": "#77DD77",
+            },
+            {
+                "if": {
+                    "column_id": ["estado_anticipada",
+                                  "random4",
+                                  "tiempo_fin_atencion_anticipada",
+                                  "proximo_fin_atencion_anticipada",
+                                  "cliente_atendido_anticipada"]
+                },
+                "backgroundColor": "#FFDA9E",
+            },
+            {
+                "if": {
+                    "column_id": ["estado_auxiliar",
+                                  "random5",
+                                  "tiempo_fin_atencion_auxiliar",
+                                  "proximo_fin_atencion_auxiliar",
+                                  "cliente_atendido_auxiliar"]
+                },
+                "backgroundColor": "#C0A0C3",
+            },
+            {
+                "if": {
+                    "column_id": ["estado_maquina",
+                                  "random6",
+                                  "tiempo_fin_atencion_maquina",
+                                  "proximo_fin_atencion_maquina",
+                                  "cliente_atendido_maquina",
+                                  "random7",
+                                  "random8",
+                                  "tiempo_fin_mantenimiento",
+                                  "proximo_fin_mantenimiento"]
+                },
+                "backgroundColor": "#FDFD96",
+            },
+            {
+                "if": {
+                    "column_id": ["proximo_fin_impaciencia",
+                                  "proximo_inicio_hora_critica",
+                                  "proximo_inicio_hora_auxiliar",
+                                  "proximo_inicio_hora_moderada",
+                                  "proximo_fin_hora_moderada"]
+                },
+                "backgroundColor": "#B8E4FF",
+            },
+            {
+                "if": {
+                    "column_id": ["cola_salida_inmediata",
+                                  "cola_salida_anticipada",
+                                  "cola_maquina"]
+                },
+                "backgroundColor": "#EAFFC2",
+            },
+            {
+                "if": {
+                    "column_id": ["ctd_antic_ventanilla",
+                                  "ctd_antic_no_ventanilla",
+                                  "ctd_atendidos_maquina",
+                                  "ctd_interrumpidos_maquina"]
+                },
+                "backgroundColor": "#9B9B9B",
+            },
+            {
+                "if": {
+                    "column_id": ["acum_inmed1_libre",
+                                  "acum_inmed1_ocupado"]
+                },
+                "backgroundColor": "#C5D084",
+            },
+            {
+                "if": {
+                    "column_id": ["pct_ocup_inmed1",
+                                  "pct_perdieron_tren",
+                                  "pct_interrumpidos_maq"]
+                },
+                "backgroundColor": "#EB9CFF",
+            }
+        ],
+
         merge_duplicate_headers=True,
 
         page_size=15,
 
-        # fixed_columns={'headers': True, 'data': 1},
+        fixed_columns={'headers': True, 'data': 3},
         style_table={
-            'minWidth': '100%',
-            "overflowX": "auto"
+            'minWidth': '100%'
         },
 
         style_header={
             "text-align": "center",
-
+            "fontWeight": "bold",
+            "border": "1px solid black"
         },
 
         style_cell={
-            "textAlign": "left"
+            "textAlign": "left",
+            "border": "1px solid black",
+            'font-family': 'sans-serif',
+            "whiteSpace": "normal",
+            'height': "auto",
+            #'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
         },
-
-        style_data={
-        }
-
-
     )
 
-    return tabla
+    resultados = html.Div([
+        dbc.Container(
+            dbc.Card(dbc.CardBody(
+                "Añadir referencias de colores acá"
+            ), className="mt-3")
+        ),
+        html.Div(tabla, className="mt-3 mx-5")
+    ])
+
+    return resultados
 
 

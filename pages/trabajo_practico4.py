@@ -22,9 +22,7 @@ layout = html.Div([
                   id="toast_tp4", is_open=False, header="Simulación no generada.", duration=8000,
                   style={"position": "fixed", "top": 66, "right": 10, "width": 350}),
     ]),
-    html.Div([
-        html.Div({}, id="div_resultados_tp4", className="mt-3 mx-5"),
-    ])
+    html.Div({}, id="div_resultados_tp4")
 ])
 
 
@@ -32,12 +30,13 @@ layout = html.Div([
 @callback(
     Output("btn_simular", "children", allow_duplicate=True),
     Output("btn_simular", "disabled", allow_duplicate=True),
+    Output("div_resultados_tp4", "children", allow_duplicate=True),
     Input("btn_simular", "n_clicks"),
     prevent_initial_call=True
 )
 def cargar_boton(n_clicks):
     contenido_boton = [dbc.Spinner(size="sm"), " Cargando..."]
-    return contenido_boton, True
+    return contenido_boton, True, {}
 
 
 # Callback para el proceso de simulación y generación de resultados

@@ -99,21 +99,21 @@ class SistemaColas:
             None,  # 9. Próxima llegada mecánico
             None,  # 10. Random 3
             None,  # 11. Tiempo fin atención
-            None,  # 12. Estado ventanilla inmediata 1
+            "Deshabilitado",  # 12. Estado ventanilla inmediata 1
             None,  # 13. Próximo fin atención ventanilla inmediata 1
             None,  # 14. Cliente siendo atendido ventanilla inmediata 1
-            None,  # 15. Estado ventanilla inmediata 2
+            "Deshabilitado",  # 15. Estado ventanilla inmediata 2
             None,  # 16. Próximo fin atención ventanilla inmediata 2
             None,  # 17. Cliente siendo atendido ventanilla inmediata 2
-            None,  # 18. Estado ventanilla anticipada
+            "Deshabilitado",  # 18. Estado ventanilla anticipada
             None,  # 19. Random 4
             None,  # 20. Tiempo fin atención ventanilla anticipada
             None,  # 21. Próximo fin atención ventanilla anticipada
-            None,  # 22. Estado ventanilla auxiliar
+            "Deshabilitado",  # 22. Estado ventanilla auxiliar
             None,  # 23. Random 5
             None,  # 24. Tiempo fin atención ventanilla auxiliar
             None,  # 25. Próximo fin atención ventanilla auxiliar
-            None,  # 26. Estado máquina
+            "Deshabilitado",  # 26. Estado máquina
             None,  # 27. Random 6
             None,  # 28. Tiempo fin atención máquina
             None,  # 29. Próximo fin atención máquina

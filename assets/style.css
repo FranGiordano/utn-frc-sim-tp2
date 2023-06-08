@@ -59,7 +59,3 @@ H1, H2, H3, H4 {
   background-size: contain;
   background-repeat: no-repeat;
 }
-
-.dash-spreadsheet .row {
-  flex-wrap: nowrap;
-}
