@@ -59,11 +59,13 @@ class SistemaColas:
     def simular(self, ctd_iteraciones, iteracion_a_grabar):
         """Ejecución de la simulación"""
 
+        # Inicialización de parámetros y vector de estado
         self._nro_cliente = 0
         filas_guardadas = []
         vector_anterior = self._inicializar_vector_estado()
         vector_actual = []
 
+        # Ejecución de simulación y anexo de vectores a filas para mostrar
         for i in range(ctd_iteraciones):
 
             vector_actual = self._siguiente_vector(vector_anterior)
@@ -74,6 +76,7 @@ class SistemaColas:
             if i != (ctd_iteraciones - 1):
                 vector_anterior = vector_actual
 
+        # Se anexan los dos últimos vectores en caso de que no hayan sido anexados antes
         if not (iteracion_a_grabar <= (vector_anterior[0]) < iteracion_a_grabar + 500):
             filas_guardadas.append(vector_anterior)
         if not (iteracion_a_grabar <= (vector_actual[0]) < iteracion_a_grabar + 500):
@@ -311,7 +314,7 @@ class SistemaColas:
                     # En el caso de que sea el primero en cola, se calcula el prox fin de impaciencia
                     nve[40] += 1
                     if nve[40] == 1:
-                        nve[34] = pasajero.hora_inicio + self._cte_espera_impaciente
+                        nve[34] = pasajero.hora_llegada + self._cte_espera_impaciente
 
             case "En máquina salida inmediata cercanía":
 
@@ -339,7 +342,7 @@ class SistemaColas:
             nve[41] += 1
             nve[45] += 1
 
-            pasajero = self._buscar_nro_pasajero(nve[51], nve[54])
+            pasajero = self._buscar_pasajero_por_nro(nve[51], nve[54])
             pasajero.estado = "En cola"
             nve[54] = None
 
@@ -352,7 +355,7 @@ class SistemaColas:
         """Método que se ejecuta ante el evento Fin atención ventanilla inmediata 1"""
 
         # Marcamos al pasajero como atendido
-        pasajero = self._buscar_nro_pasajero(nve[51], nve[14])
+        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
         pasajero.estado = "Destrucción de objeto"
         nve[13] = None
         nve[14] = None
@@ -380,7 +383,7 @@ class SistemaColas:
         """Método que se ejecuta ante el evento Fin atención ventanilla inmediata 2"""
 
         # Marcamos al pasajero como atendido
-        pasajero = self._buscar_nro_pasajero(nve[51], nve[17])
+        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[17])
         pasajero.estado = "Destrucción de objeto"
         nve[16] = None
         nve[17] = None
@@ -404,7 +407,7 @@ class SistemaColas:
         """Método que se ejecuta ante el evento Fin atención ventanilla anticipada"""
 
         # Marcamos al pasajero como atendido:
-        pasajero = self._buscar_nro_pasajero(nve[51], nve[53])
+        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[53])
         pasajero.estado = "Destrucción de objeto"
         nve[53] = None
         nve[21] = None
@@ -420,6 +423,7 @@ class SistemaColas:
         # Si hay más pasajeros, lo asignamos a ventanilla
         else:
             nve[40] -= 1
+            nve[34] = None
             pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
             nve[18], nve[19], nve[20], nve[21], nve[53] = self._atender_pasajero(pasajero, nve[1])
             nve[42] += 1
@@ -427,7 +431,7 @@ class SistemaColas:
             # Si quedaron pasajeros en cola, se recalcula el fin de impaciencia
             if nve[40] > 0:
                 pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
-                nve[34] = nve[1] + pasajero_impaciencia.hora_inicio
+                nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
             else:
                 nve[34] = None
 
@@ -440,7 +444,7 @@ class SistemaColas:
         """
 
         # Marcamos al pasajero como atendido:
-        pasajero = self._buscar_nro_pasajero(nve[51], nve[52])
+        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[52])
         pasajero.estado = "Destrucción de objeto"
         nve[25] = None
         nve[52] = None
@@ -465,6 +469,7 @@ class SistemaColas:
         elif nve[40] > 0:
 
             nve[40] -= 1
+            nve[34] = None
             pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
             nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
 
@@ -472,7 +477,7 @@ class SistemaColas:
             if nve[40] > 0:
                 pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola",
                                                                     ["En ventanilla salida anticipada"])
-                nve[34] = nve[1] + pasajero_impaciencia.hora_inicio
+                nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
             else:
                 nve[34] = None
 
@@ -485,7 +490,7 @@ class SistemaColas:
             nve[33] = None
         else:
             # Marcamos al pasajero como atendido:
-            pasajero = self._buscar_nro_pasajero(nve[51], nve[54])
+            pasajero = self._buscar_pasajero_por_nro(nve[51], nve[54])
             pasajero.estado = "Destrucción de objeto"
             nve[29] = None
             nve[54] = None
@@ -519,7 +524,7 @@ class SistemaColas:
         # Si quedaron pasajeros en cola, se recalcula el fin de impaciencia
         if nve[40] > 0:
             pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
-            nve[34] = nve[1] + pasajero_impaciencia.hora_inicio
+            nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
         else:
             nve[34] = None
 
@@ -549,8 +554,16 @@ class SistemaColas:
         # Chequeo en cola anticipada
         elif nve[40] > 0:
             nve[40] -= 1
+            nve[34] = None
             pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
             nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
+
+            if nve[40] > 0:
+                pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola",
+                                                                    ["En ventanilla salida anticipada"])
+                nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
+            else:
+                nve[34] = None
 
         else:
             nve[22] = "Libre"
@@ -635,11 +648,11 @@ class SistemaColas:
 
         return self._media_mantenimiento_maquina + self._desv_est_mantenimiento_maquina * z
 
-    def _crear_pasajero(self, tipo_atencion, hora_inicio):
+    def _crear_pasajero(self, tipo_atencion, hora_llegada):
         """Crea un objeto de la clase Pasajero"""
 
         self._nro_cliente += 1
-        return self._Pasajero(self._nro_cliente, tipo_atencion, "En cola", hora_inicio)
+        return self._Pasajero(self._nro_cliente, tipo_atencion, "En cola", hora_llegada)
 
     def _guardar_pasajero(self, pasajeros, pasajero):
         """Guarda un objeto de la clase Pasajero en una lista de pasajeros"""
@@ -648,7 +661,7 @@ class SistemaColas:
             if i.estado == "Destrucción de objeto":
                 i.nro = pasajero.nro
                 i.estado = pasajero.estado
-                i.hora_inicio = pasajero.hora_inicio
+                i.hora_llegada = pasajero.hora_llegada
                 i.tipo_atencion = pasajero.tipo_atencion
                 break
         else:
@@ -657,25 +670,24 @@ class SistemaColas:
     def _buscar_primer_pasajero(self, pasajeros, estado, lista_tipo_atencion):
         """Devuelve el primer pasajero (en orden de llegada) dado un estado y una lista de tipos de atención"""
 
-        pasajeros_validos = []
+        primer_pasajero = None
 
-        for i in pasajeros:
-            if i.estado == estado and i.tipo_atencion in lista_tipo_atencion:
-                pasajeros_validos.append(i)
-
-        pasajeros_validos.sort(key=lambda x: x.hora_inicio)
+        for pasajero in pasajeros:
+            if pasajero.estado == estado and pasajero.tipo_atencion in lista_tipo_atencion:
+                if primer_pasajero is None or primer_pasajero.hora_llegada > pasajero.hora_llegada:
+                    primer_pasajero = pasajero
 
         # Se levanta un error en caso de que no se haya encontrado ningún pasajero en la lista.
-        if len(pasajeros_validos) == 0:
-            error = f"No se encontró ningún pasajero de estado {estado} y lista {lista_tipo_atencion} \n" \
+        if primer_pasajero is None:
+            error = f"No se encontró ningún pasajero de estado: '{estado}' y lista: {lista_tipo_atencion} \n" \
                     f"La lista de pasajeros cuenta con los siguientes clientes: \n"
             for i in pasajeros:
                 error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
             raise Exception(error)
 
-        return pasajeros_validos[0]
+        return primer_pasajero
 
-    def _buscar_nro_pasajero(self, pasajeros, nro):
+    def _buscar_pasajero_por_nro(self, pasajeros, nro):
         """Devuelve un pasajero dado su número"""
 
         for i in pasajeros:
@@ -713,11 +725,11 @@ class SistemaColas:
     # Clases auxiliares
 
     class _Pasajero:
-        def __init__(self, nro, tipo_atencion, estado, hora_inicio):
+        def __init__(self, nro, tipo_atencion, estado, hora_llegada):
             self.nro = nro
             self.tipo_atencion = tipo_atencion
             self.estado = estado
-            self.hora_inicio = hora_inicio
+            self.hora_llegada = hora_llegada
 
 
 # =====================================================================================================================

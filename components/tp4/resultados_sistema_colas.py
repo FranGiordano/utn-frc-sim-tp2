@@ -1,9 +1,24 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash import dash_table
+from datetime import timedelta
 
 
 def crear_resultados_simulacion(filas):
+
+    paleta_de_colores = {
+        "Llegada de pasajero": "#84B6F4",
+        "Llegada de mecánico": "#FDCAE1",
+        "Ventanilla inmediata 1 y 2": "#77DD77",
+        "Ventanilla anticipada": "#FFDA9E",
+        "Ventanilla auxiliar": "#C0A0C3",
+        "Máquina": "#FDFD96",
+        "Otros eventos": "#B8E4FF",
+        "Colas": "#EAFFC2",
+        "Contadores": "#9B9B9B",
+        "Acumuladores": "#C5D084",
+        "Métricas": "#EB9CFF"
+    }
 
     tabla = dash_table.DataTable(
 
@@ -54,7 +69,7 @@ def crear_resultados_simulacion(filas):
             {"name": "Cola salida anticipada", "id": "cola_salida_anticipada"},
             {"name": "Cola máquina", "id": "cola_maquina"},
             {"name": "Pasajeros anticipada que entraron a ventanilla", "id": "ctd_antic_ventanilla"},
-            {"name": "Pasajeros anticipada que no entraron a ventanilla", "id": "ctd_antic_no_ventanilla"},
+            {"name": "Pasajeros anticipada que perdieron el tren", "id": "ctd_antic_no_ventanilla"},
             {"name": "Pasajeros atendidos en máquina", "id": "ctd_atendidos_maquina"},
             {"name": "Pasajeros interrumpidos en máquina", "id": "ctd_interrumpidos_maquina"},
             {"name": "Tiempo ventanilla inmediata 1 en estado libre", "id": "acum_inmed1_libre"},
@@ -67,47 +82,47 @@ def crear_resultados_simulacion(filas):
         data=[
             {
                 "iteracion": f"{i[0]:,.0f}",
-                "reloj": f"{i[1]:.4f}" if i[1] is not None else "",
+                "reloj": str_reloj(i[1]),
                 "evento": i[2],
                 "random1": f"{i[3]:.2f}" if i[3] is not None else "",
-                "tiempo_entre_llegada_pasajero": f"{i[4]:.4f}" if i[4] is not None else "",
-                "proxima_llegada_pasajero": f"{i[5]:.4f}" if i[5] is not None else "",
+                "tiempo_entre_llegada_pasajero": str_reloj(i[4]),
+                "proxima_llegada_pasajero": str_reloj(i[5]),
                 "random2": f"{i[6]:.2f}" if i[6] is not None else "",
                 "proximo_tipo_atencion": i[7],
-                "tiempo_entre_llegada_mecanico": f"{i[8]:.4f}" if i[8] is not None else "",
-                "proxima_llegada_mecanico": f"{i[9]:.4f}" if i[9] is not None else "",
+                "tiempo_entre_llegada_mecanico": str_reloj(i[8]),
+                "proxima_llegada_mecanico": str_reloj(i[9]),
                 "random3": f"{i[10]:.2f}" if i[10] is not None else "",
-                "tiempo_fin_atencion_inmediata": f"{i[11]:.4f}" if i[11] is not None else "",
+                "tiempo_fin_atencion_inmediata": str_reloj(i[11]),
                 "estado_inmediata_1": i[12],
-                "proximo_fin_atencion_inmed_1": f"{i[13]:.4f}" if i[13] is not None else "",
+                "proximo_fin_atencion_inmed_1": str_reloj(i[13]),
                 "cliente_atendido_inmed_1": i[14],
                 "estado_inmediata_2": i[15],
-                "proximo_fin_atencion_inmed_2": f"{i[16]:.4f}" if i[16] is not None else "",
+                "proximo_fin_atencion_inmed_2": str_reloj(i[16]),
                 "cliente_atendido_inmed_2": i[17],
                 "estado_anticipada": i[18],
                 "random4": f"{i[19]:.2f}" if i[19] is not None else "",
-                "tiempo_fin_atencion_anticipada": f"{i[20]:.4f}" if i[20] is not None else "",
-                "proximo_fin_atencion_anticipada": f"{i[21]:.4f}" if i[21] is not None else "",
+                "tiempo_fin_atencion_anticipada": str_reloj(i[20]),
+                "proximo_fin_atencion_anticipada": str_reloj(i[21]),
                 "cliente_atendido_anticipada": i[53],
                 "estado_auxiliar": i[22],
                 "random5": f"{i[23]:.2f}" if i[23] is not None else "",
-                "tiempo_fin_atencion_auxiliar": f"{i[24]:.4f}" if i[24] is not None else "",
-                "proximo_fin_atencion_auxiliar": f"{i[25]:.4f}" if i[25] is not None else "",
+                "tiempo_fin_atencion_auxiliar": str_reloj(i[24]),
+                "proximo_fin_atencion_auxiliar": str_reloj(i[25]),
                 "cliente_atendido_auxiliar": i[52],
                 "estado_maquina": i[26],
                 "random6": f"{i[27]:.2f}" if i[27] is not None else "",
-                "tiempo_fin_atencion_maquina": f"{i[28]:.4f}" if i[28] is not None else "",
-                "proximo_fin_atencion_maquina": f"{i[29]:.4f}" if i[29] is not None else "",
+                "tiempo_fin_atencion_maquina": str_reloj(i[28]),
+                "proximo_fin_atencion_maquina": str_reloj(i[29]),
                 "cliente_atendido_maquina": i[54],
                 "random7": f"{i[30]:.2f}" if i[30] is not None else "",
                 "random8": f"{i[31]:.2f}" if i[31] is not None else "",
-                "tiempo_fin_mantenimiento": f"{i[32]:.4f}" if i[32] is not None else "",
-                "proximo_fin_mantenimiento": f"{i[33]:.4f}" if i[33] is not None else "",
-                "proximo_fin_impaciencia": f"{i[34]:.4f}" if i[34] is not None else "",
-                "proximo_inicio_hora_critica": f"{i[35]:.4f}" if i[35] is not None else "",
-                "proximo_inicio_hora_auxiliar": f"{i[36]:.4f}" if i[36] is not None else "",
-                "proximo_inicio_hora_moderada": f"{i[37]:.4f}" if i[37] is not None else "",
-                "proximo_fin_hora_moderada": f"{i[38]:.4f}" if i[38] is not None else "",
+                "tiempo_fin_mantenimiento": str_reloj(i[32]),
+                "proximo_fin_mantenimiento": str_reloj(i[33]),
+                "proximo_fin_impaciencia": str_reloj(i[34]),
+                "proximo_inicio_hora_critica": str_reloj(i[35]),
+                "proximo_inicio_hora_auxiliar": str_reloj(i[36]),
+                "proximo_inicio_hora_moderada": str_reloj(i[37]),
+                "proximo_fin_hora_moderada": str_reloj(i[38]),
                 "cola_salida_inmediata": i[39],
                 "cola_salida_anticipada": i[40],
                 "cola_maquina": i[41],
@@ -115,8 +130,8 @@ def crear_resultados_simulacion(filas):
                 "ctd_antic_no_ventanilla": i[43],
                 "ctd_atendidos_maquina": i[44],
                 "ctd_interrumpidos_maquina": i[45],
-                "acum_inmed1_libre": f"{i[46]:.4f}" if i[46] is not None else "",
-                "acum_inmed1_ocupado": f"{i[47]:.4f}" if i[47] is not None else "",
+                "acum_inmed1_libre": str_reloj(i[46]),
+                "acum_inmed1_ocupado": str_reloj(i[47]),
                 "pct_ocup_inmed1": f"{i[48] * 100:.2f}%" if i[48] is not None else "",
                 "pct_perdieron_tren": f"{i[49] * 100:.2f}%" if i[49] is not None else "",
                 "pct_interrumpidos_maq": f"{i[50] * 100:.2f}%" if i[50] is not None else ""
@@ -133,14 +148,14 @@ def crear_resultados_simulacion(filas):
                                   "random2",
                                   "proximo_tipo_atencion"]
                 },
-                "backgroundColor": "#84B6F4",
+                "backgroundColor": paleta_de_colores["Llegada de pasajero"],
             },
             {
                 "if": {
                     "column_id": ["tiempo_entre_llegada_mecanico",
                                   "proxima_llegada_mecanico"]
                 },
-                "backgroundColor": "#FDCAE1",
+                "backgroundColor": paleta_de_colores["Llegada de mecánico"],
             },
             {
                 "if": {
@@ -153,7 +168,7 @@ def crear_resultados_simulacion(filas):
                                   "proximo_fin_atencion_inmed_2",
                                   "cliente_atendido_inmed_2"]
                 },
-                "backgroundColor": "#77DD77",
+                "backgroundColor": paleta_de_colores["Ventanilla inmediata 1 y 2"],
             },
             {
                 "if": {
@@ -163,7 +178,7 @@ def crear_resultados_simulacion(filas):
                                   "proximo_fin_atencion_anticipada",
                                   "cliente_atendido_anticipada"]
                 },
-                "backgroundColor": "#FFDA9E",
+                "backgroundColor": paleta_de_colores["Ventanilla anticipada"],
             },
             {
                 "if": {
@@ -173,7 +188,7 @@ def crear_resultados_simulacion(filas):
                                   "proximo_fin_atencion_auxiliar",
                                   "cliente_atendido_auxiliar"]
                 },
-                "backgroundColor": "#C0A0C3",
+                "backgroundColor": paleta_de_colores["Ventanilla auxiliar"],
             },
             {
                 "if": {
@@ -187,7 +202,7 @@ def crear_resultados_simulacion(filas):
                                   "tiempo_fin_mantenimiento",
                                   "proximo_fin_mantenimiento"]
                 },
-                "backgroundColor": "#FDFD96",
+                "backgroundColor": paleta_de_colores["Máquina"],
             },
             {
                 "if": {
@@ -197,7 +212,7 @@ def crear_resultados_simulacion(filas):
                                   "proximo_inicio_hora_moderada",
                                   "proximo_fin_hora_moderada"]
                 },
-                "backgroundColor": "#B8E4FF",
+                "backgroundColor": paleta_de_colores["Otros eventos"],
             },
             {
                 "if": {
@@ -205,7 +220,7 @@ def crear_resultados_simulacion(filas):
                                   "cola_salida_anticipada",
                                   "cola_maquina"]
                 },
-                "backgroundColor": "#EAFFC2",
+                "backgroundColor": paleta_de_colores["Colas"],
             },
             {
                 "if": {
@@ -214,14 +229,14 @@ def crear_resultados_simulacion(filas):
                                   "ctd_atendidos_maquina",
                                   "ctd_interrumpidos_maquina"]
                 },
-                "backgroundColor": "#9B9B9B",
+                "backgroundColor": paleta_de_colores["Contadores"],
             },
             {
                 "if": {
                     "column_id": ["acum_inmed1_libre",
                                   "acum_inmed1_ocupado"]
                 },
-                "backgroundColor": "#C5D084",
+                "backgroundColor": paleta_de_colores["Acumuladores"],
             },
             {
                 "if": {
@@ -229,13 +244,15 @@ def crear_resultados_simulacion(filas):
                                   "pct_perdieron_tren",
                                   "pct_interrumpidos_maq"]
                 },
-                "backgroundColor": "#EB9CFF",
+                "backgroundColor": paleta_de_colores["Métricas"],
             }
         ],
 
         merge_duplicate_headers=True,
 
         page_size=15,
+
+        cell_selectable=False,
 
         fixed_columns={'headers': True, 'data': 3},
         style_table={
@@ -258,10 +275,27 @@ def crear_resultados_simulacion(filas):
         },
     )
 
+    referencias = []
+    nro_col_por_fila = 4
+    for i, j in enumerate(paleta_de_colores):
+        if i % nro_col_por_fila == 0:
+            referencias.append(dbc.Row([]))
+        referencias[-1].children.append(
+            dbc.Col([
+                html.I(className="bi bi-square-fill", style={"color": paleta_de_colores[j]}),
+                f" {i+1}. {j}"
+            ])
+        )
+
+    if len(referencias[-1].children) != nro_col_por_fila:
+        n = nro_col_por_fila - len(referencias[-1].children)
+        for i in range(n):
+            referencias[-1].children.append(dbc.Col())
+
     resultados = html.Div([
         dbc.Container(
             dbc.Card(dbc.CardBody(
-                "Añadir referencias de colores acá"
+                referencias
             ), className="mt-3")
         ),
         html.Div(tabla, className="mt-3 mx-5")
@@ -270,3 +304,8 @@ def crear_resultados_simulacion(filas):
     return resultados
 
 
+def str_reloj(hora):
+    if hora is None:
+        return ""
+    else:
+        return str(timedelta(hours=hora) - timedelta(microseconds=timedelta(hours=hora).microseconds))

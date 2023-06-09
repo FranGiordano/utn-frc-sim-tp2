@@ -7,7 +7,7 @@ from components.general.barra_navegacion import crear_barra_navegacion
 app = Dash(__name__,
            title="Simulación",
            meta_tags=[{"name": "viewport", "content": "width=device-width"}],
-           external_stylesheets=[dbc.themes.BOOTSTRAP],
+           external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
            use_pages=True)
 
 app._favicon = "/assets/icons/favicon.ico"
