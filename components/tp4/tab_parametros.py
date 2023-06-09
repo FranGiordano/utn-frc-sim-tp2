@@ -13,7 +13,7 @@ def crear_tab_parametros():
 
                 dbc.Col(dbc.FormFloating([
                     dbc.Input(id="in_cantidad_iteraciones", placeholder="Cantidad de iteraciones", type="number", min=1,
-                              value=100000, required=True, max=1000000, step=1),
+                              value=50000, required=True, max=1000000, step=1),
                     dbc.Label("Cantidad de simulaciones")
                 ])),
 
@@ -25,7 +25,7 @@ def crear_tab_parametros():
 
                 dbc.Col(dbc.FormFloating([
                     dbc.Input(id="in_semilla_simulacion", placeholder="Semilla de simulación",
-                              type="number", value=1, min=0, required=False, step=1),
+                              type="number", min=0, required=False, step=1),
                     dbc.Label("Semilla de simulación")
                 ])),
 
