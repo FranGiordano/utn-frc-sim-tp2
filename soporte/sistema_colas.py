@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 import random as rd
 import math
 
@@ -149,6 +149,71 @@ class SistemaColas:
 
         return vector_estado
 
+    def _siguiente_vector(self, ve):
+        """Genera el siguiente vector de estado"""
+
+        # Se instancia un nuevo vector de estado
+        nve = copy(ve)
+
+        # Nueva iteración
+        nve[0] = ve[0] + 1
+
+        # Cálculo del nuevo evento y tiempo en que sucede
+        nve[1], nve[2] = self._obtener_evento(ve)
+
+        # Se mantienen tiempos, estados, clientes atendidos, colas, contadores y acumuladores
+        for i in [5, 7, 9, 12, 13, 14, 15, 16, 17, 18, 21, 22, 25, 26, 29, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                  43, 44, 45, 46, 47, 52, 53, 54]:
+            nve[i] = ve[i]
+
+        # Limpieza de cálculos de linea (random + tiempos para realizar sumas con reloj)
+        for i in [3, 4, 6, 8, 10, 11, 19, 20, 23, 24, 27, 28, 30, 31, 32]:
+            nve[i] = None
+
+        # Se eliminan los pasajeros que ya salieron del sistema
+        nve[51] = [copy(i) for i in ve[51] if i.estado != "Destrucción de objeto"]
+
+        # Ejecución de evento correspondiente al nuevo vector de estado
+        match nve[2]:
+            case "Llegada pasajero":
+                self._llegada_pasajero(nve)
+            case "Llegada mecánico":
+                self._llegada_mecanico(nve)
+            case "Fin atención ventanilla inmediata 1":
+                self._fin_atencion_ventanilla_inmediata1(nve)
+            case "Fin atención ventanilla inmediata 2":
+                self._fin_atencion_ventanilla_inmediata2(nve)
+            case "Fin atención ventanilla anticipada":
+                self._fin_atencion_ventanilla_anticipada(nve)
+            case "Fin atención ventanilla auxiliar":
+                self._fin_atencion_ventanilla_auxiliar(nve)
+            case "Fin atención máquina":
+                self._fin_atencion_o_mantenimiento_maquina(nve)
+            case "Fin mantenimiento máquina":
+                self._fin_atencion_o_mantenimiento_maquina(nve)
+            case "Fin espera impaciente":
+                self._fin_espera_impaciente(nve)
+            case "Inicio hora crítica":
+                self._inicio_hora_critica(nve)
+            case "Inicio hora ventanilla auxiliar":
+                self._inicio_hora_ventanilla_auxiliar(nve)
+            case "Inicio hora moderada": # El fin de hora ventanilla auxiliar coincide con el inicio de hm
+                self._inicio_hora_moderada(nve)
+            case "Fin hora moderada":
+                self._fin_hora_moderada(nve)
+            case _:
+                raise ValueError("Se intentó ingresar un evento sin un método correspondiente")
+
+        # Cálculo de acumuladores y métricas:
+
+        nve[46] += nve[1] - ve[1] if ve[12] == "Libre" else 0
+        nve[47] += nve[1] - ve[1] if ve[12] == "Ocupado" else 0
+        nve[48] = nve[47] / (nve[47] + nve[46]) if (nve[47] + nve[46]) > 0 else 0
+        nve[49] = nve[43] / (nve[42] + nve[43]) if (nve[42] + nve[43]) > 0 else 0
+        nve[50] = nve[45] / (nve[44] + nve[45]) if (nve[44] + nve[45]) > 0 else 0
+
+        return nve
+
     def _obtener_evento(self, vector_estado):
         """Devuelve el reloj y evento del próximo vector de estado"""
 
@@ -172,72 +237,6 @@ class SistemaColas:
 
         return minimo_siguiente, horarios[minimo_siguiente]
 
-    def _siguiente_vector(self, vector_estado):
-        """Genera el siguiente vector de estado"""
-
-        nuevo_vector_estado = copy.deepcopy(vector_estado)
-        nuevo_vector_estado[0] = vector_estado[0] + 1
-        nuevo_vector_estado[1], nuevo_vector_estado[2] = self._obtener_evento(vector_estado)
-
-        # Limpieza de cálculos de linea (random + tiempos para realizar sumas con reloj)
-        for i in [3, 4, 6, 8, 10, 11, 19, 20, 23, 24, 27, 28, 30, 31, 32]:
-            nuevo_vector_estado[i] = None
-
-        # Ejecución de evento correspondiente
-        match nuevo_vector_estado[2]:
-            case "Llegada pasajero":
-                self._llegada_pasajero(nuevo_vector_estado, vector_estado)
-            case "Llegada mecánico":
-                self._llegada_mecanico(nuevo_vector_estado, vector_estado)
-            case "Fin atención ventanilla inmediata 1":
-                self._fin_atencion_ventanilla_inmediata1(nuevo_vector_estado, vector_estado)
-            case "Fin atención ventanilla inmediata 2":
-                self._fin_atencion_ventanilla_inmediata2(nuevo_vector_estado, vector_estado)
-            case "Fin atención ventanilla anticipada":
-                self._fin_atencion_ventanilla_anticipada(nuevo_vector_estado, vector_estado)
-            case "Fin atención ventanilla auxiliar":
-                self._fin_atencion_ventanilla_auxiliar(nuevo_vector_estado, vector_estado)
-            case "Fin atención máquina":
-                self._fin_atencion_o_mantenimiento_maquina(nuevo_vector_estado, vector_estado)
-            case "Fin mantenimiento máquina":
-                self._fin_atencion_o_mantenimiento_maquina(nuevo_vector_estado, vector_estado)
-            case "Fin espera impaciente":
-                self._fin_espera_impaciente(nuevo_vector_estado, vector_estado)
-            case "Inicio hora crítica":
-                self._inicio_hora_critica(nuevo_vector_estado)
-            case "Inicio hora ventanilla auxiliar":
-                self._inicio_hora_ventanilla_auxiliar(nuevo_vector_estado, vector_estado)
-            case "Inicio hora moderada": # El fin de hora ventanilla auxiliar coincide con el inicio de hm
-                self._inicio_hora_moderada(nuevo_vector_estado, vector_estado)
-            case "Fin hora moderada":
-                self._fin_hora_moderada(nuevo_vector_estado, vector_estado)
-            case _:
-                raise ValueError("Se intentó ingresar un evento sin un método correspondiente")
-
-        # Cálculo de acumuladores y métricas:
-
-        if vector_estado[12] == "Libre":
-            nuevo_vector_estado[46] += nuevo_vector_estado[1] - vector_estado[1]
-        elif vector_estado[12] == "Ocupado":
-            nuevo_vector_estado[47] += nuevo_vector_estado[1] - vector_estado[1]
-
-        if (nuevo_vector_estado[47] + nuevo_vector_estado[46]) > 0:
-            nuevo_vector_estado[48] = nuevo_vector_estado[47] / (nuevo_vector_estado[47] + nuevo_vector_estado[46])
-        else:
-            nuevo_vector_estado[48] = 0
-
-        if (nuevo_vector_estado[42] + nuevo_vector_estado[43]) > 0:
-            nuevo_vector_estado[49] = nuevo_vector_estado[43] / (nuevo_vector_estado[42] + nuevo_vector_estado[43])
-        else:
-            nuevo_vector_estado[49] = 0
-
-        if (nuevo_vector_estado[44] + nuevo_vector_estado[45]) > 0:
-            nuevo_vector_estado[50] = nuevo_vector_estado[45] / (nuevo_vector_estado[44] + nuevo_vector_estado[45])
-        else:
-            nuevo_vector_estado[50] = 0
-
-        return nuevo_vector_estado
-
     # Métodos relacionados a los eventos
 
     def _inicio_hora_critica(self, nve):
@@ -256,16 +255,14 @@ class SistemaColas:
         nve[18] = "Libre" # Ventanilla anticipada
         nve[26] = "Libre" # Máquina
 
-        nve[51] = []
-
         nve[35] += 24
 
-    def _llegada_pasajero(self, nve, ve):
+    def _llegada_pasajero(self, nve):
         """Método que se ejecuta ante el evento Llegada pasajero"""
 
         # Creamos un objeto pasajero
         self._nro_cliente += 1
-        pasajero = self._Pasajero(self._nro_cliente, ve[7], "En cola", nve[1])
+        pasajero = self._Pasajero(self._nro_cliente, nve[7], "En cola", nve[1])
 
         # Próxima llegada de pasajero
         nve[3], nve[4], nve[5], nve[6], nve[7] = self._generar_nueva_llegada_pasajero(nve[1])
@@ -307,24 +304,21 @@ class SistemaColas:
 
                 if nve[26] == "Libre":
                     nve[26], nve[27], nve[28], nve[29], nve[54] = self._atender_pasajero(pasajero, nve[1])
-
                 else:
                     nve[41] += 1
 
         # Se guarda el nuevo pasajero
         self._guardar_pasajero(nve[51], pasajero)
 
-    def _llegada_mecanico(self, nve, ve):
+    def _llegada_mecanico(self, nve):
         """Método que se ejecuta ante el evento Llegada mecánico"""
 
         # Nuevo mecánico
         nve[8] = self._cte_llegada_mecanico
         nve[9] = nve[1] + nve[8]
 
-        # Se coloca la máquina en mantenimiento y se expulsa a algún pasajero si está ahí
-        nve[26] = "En mantenimiento"
-
-        if ve[26] == "Ocupado":
+        # Se expulsa algún pasajero que esté en máquina
+        if nve[26] == "Ocupado":
             nve[29] = None
             nve[41] += 1
             nve[45] += 1
@@ -333,12 +327,15 @@ class SistemaColas:
             pasajero.estado = "En cola"
             nve[54] = None
 
+        # Se coloca la máquina en mantenimiento
+        nve[26] = "En mantenimiento"
+
         nve[30] = self._generador.random()
         nve[31] = self._generador.random()
         nve[32] = self._proximo_tiempo_mantenimiento_maquina(nve[30], nve[31])
         nve[33] = nve[32] + nve[1]
 
-    def _fin_atencion_ventanilla_inmediata1(self, nve, ve):
+    def _fin_atencion_ventanilla_inmediata1(self, nve):
         """Método que se ejecuta ante el evento Fin atención ventanilla inmediata 1"""
 
         # Marcamos al pasajero como atendido
@@ -366,7 +363,7 @@ class SistemaColas:
                 print("hjola")
             nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
 
-    def _fin_atencion_ventanilla_inmediata2(self, nve, ve):
+    def _fin_atencion_ventanilla_inmediata2(self, nve):
         """Método que se ejecuta ante el evento Fin atención ventanilla inmediata 2"""
 
         # Marcamos al pasajero como atendido
@@ -390,7 +387,7 @@ class SistemaColas:
                                                                          "En ventanilla salida inmediata interprovincial"])
             nve[15], nve[10], nve[11], nve[16], nve[17] = self._atender_pasajero(pasajero, nve[1])
 
-    def _fin_atencion_ventanilla_anticipada(self, nve, ve):
+    def _fin_atencion_ventanilla_anticipada(self, nve):
         """Método que se ejecuta ante el evento Fin atención ventanilla anticipada"""
 
         # Marcamos al pasajero como atendido:
@@ -422,7 +419,7 @@ class SistemaColas:
             else:
                 nve[34] = None
 
-    def _fin_atencion_ventanilla_auxiliar(self, nve, ve):
+    def _fin_atencion_ventanilla_auxiliar(self, nve):
         """Método que se ejecuta ante el evento Fin atención ventanilla auxiliar
 
         Se acordó en este caso que la ventanilla auxiliar abre teniendo en cuenta un parámetro configurables
@@ -468,7 +465,7 @@ class SistemaColas:
             else:
                 nve[34] = None
 
-    def _fin_atencion_o_mantenimiento_maquina(self, nve, ve):
+    def _fin_atencion_o_mantenimiento_maquina(self, nve):
         """Método que se ejecuta ante el evento Fin atención máquina o Fin mantenimiento máquina"""
 
         # Si es fin de atencion, entonces tiene un pasajero, y lo sacamos.
@@ -497,7 +494,7 @@ class SistemaColas:
             pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En máquina salida inmediata cercanía"])
             nve[26], nve[27], nve[28], nve[29], nve[54] = self._atender_pasajero(pasajero, nve[1])
 
-    def _fin_espera_impaciente(self, nve, ve):
+    def _fin_espera_impaciente(self, nve):
         """Método que se ejecuta ante el evento Fin espera impaciente"""
 
         # Aclaración: se expulsa al primer pasajero en cola
@@ -515,7 +512,7 @@ class SistemaColas:
         else:
             nve[34] = None
 
-    def _inicio_hora_moderada(self, nve, ve):
+    def _inicio_hora_moderada(self, nve):
         """Método que se ejecuta ante el evento Inicio hora moderada"""
 
         # Deshabilitamos la ventanilla inmediata 2 y auxiliar sólo si están libres
@@ -526,7 +523,7 @@ class SistemaColas:
 
         nve[37] += 24
 
-    def _inicio_hora_ventanilla_auxiliar(self, nve, ve):
+    def _inicio_hora_ventanilla_auxiliar(self, nve):
         """Método que se ejecuta ante el evento Inicio hora ventanilla auxiliar"""
 
         # Habilitamos la ventanilla auxiliar, si hay pasajeros en cola los atiende
@@ -557,7 +554,7 @@ class SistemaColas:
 
         nve[36] += 24
 
-    def _fin_hora_moderada(self, nve, ve):
+    def _fin_hora_moderada(self, nve):
         """Método que se ejecuta ante el evento Fin hora moderada"""
 
         # Deshabilitamos las ventanillas y máquinas que estén libres
@@ -680,6 +677,12 @@ class SistemaColas:
         for i in pasajeros:
             if i.nro == nro:
                 return i
+        else:
+            error = f"No se encontró ningún pasajero de número {nro} \n" \
+                    f"La lista de pasajeros cuenta con los siguientes clientes: \n"
+            for i in pasajeros:
+                error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
+            raise Exception(error)
 
     def _generar_nueva_llegada_pasajero(self, reloj):
         """Genera el proceso del cálculo del próximo tiempo de llegada de pasajero con su correspondiente tipo de atención"""
