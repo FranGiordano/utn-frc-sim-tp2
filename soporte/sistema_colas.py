@@ -180,21 +180,8 @@ class SistemaColas:
         nuevo_vector_estado[1], nuevo_vector_estado[2] = self._obtener_evento(vector_estado)
 
         # Limpieza de cálculos de linea (random + tiempos para realizar sumas con reloj)
-        nuevo_vector_estado[3] = None
-        nuevo_vector_estado[4] = None
-        nuevo_vector_estado[6] = None
-        nuevo_vector_estado[8] = None
-        nuevo_vector_estado[10] = None
-        nuevo_vector_estado[11] = None
-        nuevo_vector_estado[19] = None
-        nuevo_vector_estado[20] = None
-        nuevo_vector_estado[23] = None
-        nuevo_vector_estado[24] = None
-        nuevo_vector_estado[27] = None
-        nuevo_vector_estado[28] = None
-        nuevo_vector_estado[30] = None
-        nuevo_vector_estado[31] = None
-        nuevo_vector_estado[32] = None
+        for i in [3, 4, 6, 8, 10, 11, 19, 20, 23, 24, 27, 28, 30, 31, 32]:
+            nuevo_vector_estado[i] = None
 
         # Ejecución de evento correspondiente
         match nuevo_vector_estado[2]:
