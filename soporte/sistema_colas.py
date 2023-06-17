@@ -415,7 +415,7 @@ class SistemaColas:
             # Si quedaron pasajeros en cola, se recalcula el fin de impaciencia
             if nve[40] > 0:
                 pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
-                nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
+                nve[34] = self._cte_espera_impaciente + pasajero_impaciencia.hora_llegada
             else:
                 nve[34] = None
 
@@ -461,7 +461,7 @@ class SistemaColas:
             if nve[40] > 0:
                 pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola",
                                                                     ["En ventanilla salida anticipada"])
-                nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
+                nve[34] = self._cte_espera_impaciente + pasajero_impaciencia.hora_llegada
             else:
                 nve[34] = None
 
@@ -508,7 +508,7 @@ class SistemaColas:
         # Si quedaron pasajeros en cola, se recalcula el fin de impaciencia
         if nve[40] > 0:
             pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
-            nve[34] = nve[1] + pasajero_impaciencia.hora_llegada
+            nve[34] = self._cte_espera_impaciente + pasajero_impaciencia.hora_llegada
         else:
             nve[34] = None
 
