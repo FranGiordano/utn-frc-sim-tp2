@@ -1,7 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, State, Input, Output, callback, no_update, dcc
-from soporte.sistema_colas import SistemaColas
+from soporte.sistema_colas_5 import SistemaColas
 from components.tp4.tab_parametros import crear_tab_parametros5
 from components.tp4.resultados_sistema_colas import crear_resultados_simulacion
 
