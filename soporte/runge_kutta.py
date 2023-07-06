@@ -1,3 +1,5 @@
+
+
 def cuando_detiene(a, b, h):
     f_a, f_s = [0] * 8
     filas = []
@@ -14,7 +16,7 @@ def cuando_detiene(a, b, h):
 
     filas.append(f_a)
 
-    while f_a[7] >= 3 * a:
+    while f_a[7] <= 3 * a:
         f_s[0] = f_a[6]
         f_s[1] = f_a[7]
         f_s[2] = f_s[1] * b
@@ -24,14 +26,16 @@ def cuando_detiene(a, b, h):
         f_s[6] = f_s[0] + h
         f_s[7] = f_s[1] + (h / 6) * (f_s[2] + 2 * f_s[3] + 2 * f_s[4] + f_s[5])
 
-        filas.append(f_s)
-        f_a = f_s
+        fila = list(f_s)
+        filas.append(fila)
+        f_a = list(f_s)
 
-    return filas, f_a[7]
+    return filas
 
 
 def detencion_cliente(l, h):
-    f_a, f_s = [0] * 8
+    f_a = [0] * 8
+    f_s = [0] * 8
     filas = []
 
     # Fila inicial
@@ -46,7 +50,7 @@ def detencion_cliente(l, h):
 
     filas.append(f_a)
 
-    while abs(f_a[7] - f_a[1]) < 1:
+    while abs(f_a[7] - f_a[1]) > 1:
         f_s[0] = f_a[6]
         f_s[1] = f_a[7]
         f_s[2] = - (f_s[1] / (0.8 * f_s[0] ** 2)) - f_s[1]
@@ -56,10 +60,11 @@ def detencion_cliente(l, h):
         f_s[6] = f_s[0] + h
         f_s[7] = f_s[1] + (h / 6) * (f_s[2] + 2 * f_s[3] + 2 * f_s[4] + f_s[5])
 
-        filas.append(f_s)
-        f_a = f_s
+        fila = list(f_s)
+        filas.append(fila)
+        f_a = list(f_s)
 
-    return filas, f_a[7]
+    return filas
 
 
 def detencion_servidor(s, h):
@@ -78,7 +83,7 @@ def detencion_servidor(s, h):
 
     filas.append(f_a)
 
-    while f_a[7] / s >= 1.5:
+    while f_a[7] / s <= 1.5:
         f_s[0] = f_a[6]
         f_s[1] = f_a[7]
         f_s[2] = (0.2 * f_s[1]) + 3 - f_a[0]
@@ -88,7 +93,8 @@ def detencion_servidor(s, h):
         f_s[6] = f_s[0] + h
         f_s[7] = f_s[1] + (h / 6) * (f_s[2] + 2 * f_s[3] + 2 * f_s[4] + f_s[5])
 
-        filas.append(f_s)
-        f_a = f_s
+        fila = list(f_s)
+        filas.append(fila)
+        f_a = list(f_s)
 
     return filas, f_a[7]

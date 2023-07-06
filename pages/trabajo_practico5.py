@@ -4,6 +4,11 @@ from dash import html, State, Input, Output, callback, no_update, dcc
 from soporte.sistema_colas_5 import SistemaColas
 from components.tp4.tab_parametros import crear_tab_parametros5
 from components.tp4.resultados_sistema_colas import crear_resultados_simulacion
+import components.tp5.resultado_runge_kutta as trk
+import soporte.runge_kutta as rk
+
+filas_rk = rk.detencion_cliente(463.5, 0.25)
+print(filas_rk)
 
 dash.register_page(__name__,
                    path="/tp5/",
@@ -22,7 +27,9 @@ layout = html.Div([
                   id="toast_tp5", is_open=False, header="Simulación no generada.", duration=8000,
                   style={"position": "fixed", "top": 66, "right": 10, "width": 350}),
     ]),
-    html.Div({}, id="div_resultados_tp5")
+    html.Div({}, id="div_resultados_tp5"),
+    trk.crear_resultados_simulacion(filas_rk, 'L')
+
 ])
 
 

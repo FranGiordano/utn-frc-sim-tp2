@@ -1,7 +1,6 @@
 from copy import copy
 import random as rd
 import math
-import runge_kutta as rk
 
 
 class SistemaColas:
