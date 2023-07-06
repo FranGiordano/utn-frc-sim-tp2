@@ -30,16 +30,16 @@ def cuando_detiene(a, b, h):
     return filas, f_a[7]
 
 
-def detencion_cliente(l,  h):
+def detencion_cliente(l, h):
     f_a, f_s = [0] * 8
     filas = []
 
     # Fila inicial
     f_a[0] = 1
     f_a[1] = l
-    f_a[2] = - (f_a[1] / (0.8*f_a[0]**2)) - f_a[1]
-    f_a[3] = - ((f_a[1] + (h/2) * f_a[2]) / (0.8 * (f_a[0] + (h/2)) ** 2)) - f_a[1] + (h/2) * f_a[2]
-    f_a[4] = - ((f_a[1] + (h/2) * f_a[3]) / (0.8 * (f_a[0] + (h/2)) ** 2)) - f_a[1] + (h/2) * f_a[3]
+    f_a[2] = - (f_a[1] / (0.8 * f_a[0] ** 2)) - f_a[1]
+    f_a[3] = - ((f_a[1] + (h / 2) * f_a[2]) / (0.8 * (f_a[0] + (h / 2)) ** 2)) - f_a[1] + (h / 2) * f_a[2]
+    f_a[4] = - ((f_a[1] + (h / 2) * f_a[3]) / (0.8 * (f_a[0] + (h / 2)) ** 2)) - f_a[1] + (h / 2) * f_a[3]
     f_a[5] = - ((f_a[1] + h * f_a[4]) / (0.8 * (f_a[0] + h) ** 2)) - f_a[1] + h * f_a[4]
     f_a[6] = f_a[0] + h
     f_a[7] = f_a[1] + (h / 6) * (f_a[2] + 2 * f_a[3] + 2 * f_a[4] + f_a[5])
@@ -61,6 +61,7 @@ def detencion_cliente(l,  h):
 
     return filas, f_a[7]
 
+
 def detencion_servidor(s, h):
     f_a, f_s = [0] * 8
     filas = []
@@ -69,9 +70,9 @@ def detencion_servidor(s, h):
     f_a[0] = 0
     f_a[1] = s
     f_a[2] = (0.2 * f_a[1]) + 3 - f_a[0]
-    f_a[3] = (0.2 * (f_a[1] + (h/2) * f_a[2])) + 3 - (f_a[0] + (h/2))
-    f_a[4] = (0.2 * (f_a[1] + (h/2) * f_a[3])) + 3 - (f_a[0] + (h/2))
-    f_a[5] = (0.2 * (f_a[1] + (h/2) * f_a[4])) + 3 - (f_a[0] + (h/2))
+    f_a[3] = (0.2 * (f_a[1] + (h / 2) * f_a[2])) + 3 - (f_a[0] + (h / 2))
+    f_a[4] = (0.2 * (f_a[1] + (h / 2) * f_a[3])) + 3 - (f_a[0] + (h / 2))
+    f_a[5] = (0.2 * (f_a[1] + (h / 2) * f_a[4])) + 3 - (f_a[0] + (h / 2))
     f_a[6] = f_a[0] + h
     f_a[7] = f_a[1] + (h / 6) * (f_a[2] + 2 * f_a[3] + 2 * f_a[4] + f_a[5])
 
