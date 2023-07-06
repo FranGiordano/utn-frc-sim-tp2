@@ -93,6 +93,27 @@ layout = dbc.Container([
                 style={"width": "18rem"},
                 className="mx-auto"
             ),
+        ]),
+
+dbc.Col([
+            dbc.Card(
+                [
+                    dbc.CardImg(src="/assets/cards/tp5.webp", top=True),
+                    dbc.CardBody(
+                        [
+                            html.H4("TP5: Modelos de Simulación Combinada", className="card-title"),
+                            html.P(
+                                "Ejecución de una simulación de líneas de espera (colas) para la simulación del sistema"
+                                " de atención de pasajeros de la estación de tren de Córdoba. ATACA UN VIRUS INFORMATICO",
+                                className="card-text", style={"text-align": "justify"}
+                            ),
+                            dbc.Button("Ir al proyecto", color="primary", href="/tp5/"),
+                        ]
+                    ),
+                ],
+                style={"width": "18rem"},
+                className="mx-auto"
+            ),
         ])
 
     ])

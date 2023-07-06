@@ -252,7 +252,7 @@ def crear_resultados_simulacion(filas):
 
         page_size=15,
 
-        cell_selectable=False,
+        cell_selectable=True,
 
         fixed_columns={'headers': True, 'data': 3},
         style_table={
