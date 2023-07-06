@@ -77,7 +77,7 @@ def detencion_servidor(s, h):
 
     filas.append(f_a)
 
-    while abs(f_a[7] - f_a[1]) < 1:
+    while f_a[7] / s >= 1.5:
         f_s[0] = f_a[6]
         f_s[1] = f_a[7]
         f_s[2] = (0.2 * f_s[1]) + 3 - f_a[0]
