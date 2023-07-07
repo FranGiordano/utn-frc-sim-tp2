@@ -1,6 +1,8 @@
+import random
 from copy import copy
 import random as rd
 import math
+import soporte.runge_kutta as rk
 
 
 class SistemaColas:
@@ -31,6 +33,10 @@ class SistemaColas:
         self._cte_llegada_mecanico = 1.5
         self._media_mantenimiento_maquina = 0.05
         self._desv_est_mantenimiento_maquina = 0.01
+
+        self._interrupcion_inicio = 0
+
+        self.bandera = False
 
         self._tipo_atencion = [
             "En ventanilla salida inmediata cercanía",
@@ -142,9 +148,22 @@ class SistemaColas:
             0,  # 49. Pct pasajeros anticipada que perdieron el tren (perdieron / (perdieron+atendidos))
             0,  # 50. Pct pasajeros interrumpidos al usar la máquina (interrumpidos / (usaron+interrumpidos))
             [],  # 51. (y más) Pasajeros
-            None, # 52. Cliente siendo atendido en ventanilla auxiliar (Lo añadí tarde, por lo que quedó acá)
-            None, # 53. Cliente siendo atendido en anticipada (idem que 52)
-            None, # 54. Cliente siendo atendido en maquina (idem que 52 y 53) La idea de estos es facilitar los cálculos
+            None,  # 52. Cliente siendo atendido en ventanilla auxiliar (Lo añadí tarde, por lo que quedó acá)
+            None,  # 53. Cliente siendo atendido en anticipada (idem que 52)
+            None,
+            # 54. Cliente siendo atendido en maquina (idem que 52 y 53) La idea de estos es facilitar los cálculos
+
+            0,  # "Cont clientes que llegan": i[55],
+            None,  # 56 "Demora proxima llegada virus": i[56],
+            None,  # 57 "Tiempo proxima llegada virus": i[57],
+            None,  # 58 "RND tipo llegada (servidor o llegada)": i[58],
+            None,  # 59 "Tipo llegada (servidor o llegada)": i[59],
+            None,  # 60 "Tiempo detenido el servicio V1": i[60],
+            None,  # 61 "Tiempo servicio V1 normalidad": i[61],
+            None,  # 62 Tiempo remanente de cliente interrumpido i[62]
+            None,  # 63 "Tiempo detenida la llegada cliente": i[63],
+            None,  # 64 "Llegada cliente normalidad": i[64]
+            None,  # 65 Valor de B para generar proxima llegada i[65]
         ]
 
         return vector_estado
@@ -163,15 +182,30 @@ class SistemaColas:
 
         # Se mantienen tiempos, estados, clientes atendidos, colas, contadores y acumuladores
         for i in [5, 7, 9, 12, 13, 14, 15, 16, 17, 18, 21, 22, 25, 26, 29, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                  43, 44, 45, 46, 47, 52, 53, 54]:
+                  43, 44, 45, 46, 47, 52, 53, 54, 55, 57, 61, 62, 64]:
             nve[i] = ve[i]
 
         # Limpieza de cálculos de linea (random + tiempos para realizar sumas con reloj)
-        for i in [3, 4, 6, 8, 10, 11, 19, 20, 23, 24, 27, 28, 30, 31, 32]:
+        for i in [3, 4, 6, 8, 10, 11, 19, 20, 23, 24, 27, 28, 30, 31, 32, 56, 58, 59, 60, 63, 65]:
             nve[i] = None
 
         # Se eliminan los pasajeros que ya salieron del sistema
         nve[51] = [copy(i) for i in ve[51] if i.estado != "Destrucción de objeto"]
+
+        #        # Verifico si ya llegue a las 150 llegadas, para generar le inicio de interrupcion
+
+        if nve[55] == 150 and self.bandera == False:
+            self._interrupcion_inicio = nve[1]
+            b = self._generador.random()
+            nve[65] = b
+            tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+            solucion = tablasRK[-1][6]
+
+            tiempo_real = solucion * 30  # pondero el tiempo t = 1 = 30
+
+            nve[56] = tiempo_real
+            nve[57] = tiempo_real + nve[1]
+            self.bandera = True
 
         # Ejecución de evento correspondiente al nuevo vector de estado
         match nve[2]:
@@ -197,10 +231,18 @@ class SistemaColas:
                 self._inicio_hora_critica(nve)
             case "Inicio hora ventanilla auxiliar":
                 self._inicio_hora_ventanilla_auxiliar(nve)
-            case "Inicio hora moderada": # El fin de hora ventanilla auxiliar coincide con el inicio de hm
+            case "Inicio hora moderada":  # El fin de hora ventanilla auxiliar coincide con el inicio de hm
                 self._inicio_hora_moderada(nve)
             case "Fin hora moderada":
                 self._fin_hora_moderada(nve)
+
+            # nuevos eventos para tp5
+            case "Llegada virus":
+                self._llegada_virus(nve)
+            case "Fin de interrupcion virus servicio":
+                self._fin_interrupcion_virus_servicio(nve)
+            case "Fin de interrupcion virus cliente":
+                self._fin_interrupcion_virus_cliente(nve)
             case _:
                 raise ValueError("Se intentó ingresar un evento sin un método correspondiente")
 
@@ -229,8 +271,14 @@ class SistemaColas:
             vector_estado[34]: "Fin espera impaciente",
             vector_estado[35]: "Inicio hora crítica",
             vector_estado[36]: "Inicio hora ventanilla auxiliar",
-            vector_estado[37]: "Inicio hora moderada", # El fin de hora ventanilla auxiliar coincide con el inicio de hm
-            vector_estado[38]: "Fin hora moderada"
+            vector_estado[37]: "Inicio hora moderada",
+            # El fin de hora ventanilla auxiliar coincide con el inicio de hm
+            vector_estado[38]: "Fin hora moderada",
+
+            # nuevos eventos para tp5
+            vector_estado[57]: "Llegada virus",
+            vector_estado[61]: "Fin de interrupcion virus servicio",
+            vector_estado[64]: "Fin de interrupcion virus cliente",
         }
 
         minimo_siguiente = min([i for i in list(horarios.keys()) if i is not None and i > vector_estado[1]])
@@ -239,6 +287,91 @@ class SistemaColas:
 
     # Métodos relacionados a los eventos
 
+    # --------------------------------------------------------------------------
+    # Metodo de TP5 relacionadas a los eventos
+    def _llegada_virus(self, nve):
+
+        # 1. Ante el evento de llegada de virus genero el tipo de interrupcion
+        rnd_tipo = self._generador.random()
+        nve[58] = rnd_tipo
+
+        if rnd_tipo <= 35:  # Interrumpo servicio V1.
+
+            nve[59] = "Servicio Ventanilla 1"
+
+            # 2. libero ventanilla 1, ya que tengo el virus.
+            '''if nve[12] == "Ocupado":
+                nve[62] = nve[13] - nve[1]  # Reloj fin de atencion - Reloj actual
+                pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
+                pasajero.estado = "En cola"
+                nve[13] = None'''
+
+            nve[12] = "Detenida"
+
+            # 3. genero el tiempo que el servidor esta detenido.
+            vectorRK = rk.detencion_servidor(nve[1], 0.001)
+            tiempo = vectorRK[-1][6]
+
+            tiempo_real = tiempo * 8  # pondero el tiempo t = 1 = 8
+
+            nve[60] = tiempo_real
+            nve[61] = tiempo_real + nve[1]
+
+        else:
+
+            nve[59] = "Llegada Cliente"
+
+            # 1. borro la proxima llegada del cliente, de ese modo, evito mas llegadas.
+            nve[5] = None
+
+            # 1. genero tiempo que las llegadas estan detenidas
+            # vectorRk, tiempo = runge_kutta_cuarto_orden_detencion_cliente(nve[1], 0, .001)
+            vectorRk = rk.detencion_cliente(nve[1], 0.001)
+            tiempo = vectorRk[-1][6]
+            tiempo_real = tiempo * 27  # pondero el tiempo t = 1 =27
+            nve[62] = tiempo_real
+            nve[63] = tiempo_real + nve[1]
+
+        # Genero la proxima llegada de virus.
+
+    def _fin_interrupcion_virus_servicio(self, nve):
+
+        '''# atiendo el tiempo restante al cliente que fue interrumpido
+        if nve[62] is not None:
+            nve[13] = nve[62] + nve[1]  # Genero nuevo fin de atencion
+            nve[61] = None #actualizo el valor de fin atencion
+        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
+        pasajero.estado = "Siendo atendido"'''
+        nve[12] = "ocupado"
+        nve[60] = None
+        nve[62] = None
+        nve[61] = None
+
+        b = self._generador.random()
+        nve[65] = b
+        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+        tiempo_llegada = tablasRK[-1][6]
+
+        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+
+        nve[56] = tiempo_real
+        nve[57] = tiempo_real + nve[1]
+
+    def _fin_interrupcion_virus_cliente(self, nve):
+
+        # genero una proxima llegada, y pongo el servidor en libre
+        self._llegada_pasajero(nve)
+
+        b = self._generador.random()
+        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+        tiempo_llegada = tablasRK[-1][6]
+
+        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+
+        nve[56] = tiempo_real
+        nve[57] = tiempo_real + nve[1]
+
+    # -----------------------------------------------------------------------------
     def _inicio_hora_critica(self, nve):
         """Método que se ejecuta ante el evento Inicio hora crítica"""
 
@@ -250,15 +383,18 @@ class SistemaColas:
         nve[9] = nve[1] + nve[8]
 
         # Seteamos estados de servidores a Libre
-        nve[12] = "Libre" # Ventanilla 1
-        nve[15] = "Libre" # Ventanilla 2
-        nve[18] = "Libre" # Ventanilla anticipada
-        nve[26] = "Libre" # Máquina
+        nve[12] = "Libre"  # Ventanilla 1
+        nve[15] = "Libre"  # Ventanilla 2
+        nve[18] = "Libre"  # Ventanilla anticipada
+        nve[26] = "Libre"  # Máquina
 
         nve[35] += 24
 
     def _llegada_pasajero(self, nve):
         """Método que se ejecuta ante el evento Llegada pasajero"""
+
+        # Actualizo el contador del objeto pasajero
+        nve[55] += 1
 
         # Creamos un objeto pasajero
         self._nro_cliente += 1
@@ -358,7 +494,7 @@ class SistemaColas:
 
             try:
                 pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida inmediata cercanía",
-                                                                         "En ventanilla salida inmediata interprovincial"])
+                                                                             "En ventanilla salida inmediata interprovincial"])
             except IndexError:
                 print("hjola")
             nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
@@ -414,7 +550,8 @@ class SistemaColas:
 
             # Si quedaron pasajeros en cola, se recalcula el fin de impaciencia
             if nve[40] > 0:
-                pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida anticipada"])
+                pasajero_impaciencia = self._buscar_primer_pasajero(nve[51], "En cola",
+                                                                    ["En ventanilla salida anticipada"])
                 nve[34] = self._cte_espera_impaciente + pasajero_impaciencia.hora_llegada
             else:
                 nve[34] = None
@@ -590,7 +727,8 @@ class SistemaColas:
         reloj %= 24
 
         if reloj >= self._hora_inicio_moderado:
-            return rand * (self._b_llegada_pasajero_moderado - self._a_llegada_pasajero_moderado) + self._a_llegada_pasajero_moderado
+            return rand * (
+                    self._b_llegada_pasajero_moderado - self._a_llegada_pasajero_moderado) + self._a_llegada_pasajero_moderado
 
         if reloj < self._hora_inicio_moderado:
             return -self._media_llegada_pasajero_critico * math.log(1 - rand)
@@ -631,6 +769,14 @@ class SistemaColas:
         z = math.sqrt(-2.0 * math.log(rand1)) * math.cos(2 * math.pi * rand2)
 
         return self._media_mantenimiento_maquina + self._desv_est_mantenimiento_maquina * z
+
+    def _proximo_tiempo_interrupcion(self):
+        """Devuelve el próximo tiempo de mantenimiento de la máquina"""
+        rand1 = 0
+        while rand1 == 0:
+            rand1 = self._generador.random()
+
+        return rand1
 
     def _crear_pasajero(self, tipo_atencion, hora_llegada):
         """Crea un objeto de la clase Pasajero"""
@@ -722,6 +868,114 @@ class SistemaColas:
             self.hora_llegada = hora_llegada
 
 
+# runge kutta para interrupcion de inicio
+def runge_kutta_cuarto_orden_interrupcion_inicio(self, A, dt):
+    rand1 = 0
+    while rand1 == 0:
+        rand1 = self._generador.random()
+
+    beta = rand1
+    a_inicial = A
+    # Lista para almacenar los valores de cada iteración:
+    # (tiempo_inicio, A, K1, K2, K3, K4, tiempo_siguiente, A_siguiente)
+    iteraciones = [(0, A, 0, 0, 0, 0, 0)]
+
+    tiempo = 0
+
+    while condicion_corte_inicio(a_inicial, A):
+        # Calcular los valores de K1, K2, K3 y K4
+        K1 = beta * A
+        K2 = beta * (A + 0.5 * K1 * dt)
+        K3 = beta * (A + 0.5 * K2 * dt)
+        K4 = beta * (A + K3 * dt)
+
+        # Calcular el siguiente valor de A utilizando el método de Runge-Kutta de cuarto orden
+        A_siguiente = A + (dt / 6) * (K1 + 2 * K2 + 2 * K3 + K4)
+
+        tiempo_siguiente = tiempo + dt
+
+        iteraciones.append(
+            (tiempo, A, K1, K2, K3, K4, tiempo_siguiente, A_siguiente))  # Agregar los valores a la lista de iteraciones
+
+        A = A_siguiente  # Actualizar el valor de A para la próxima iteración
+        tiempo = tiempo_siguiente
+
+        return iteraciones, tiempo
+
+
+def condicion_corte_inicio(A_inicial, A_actual):
+    return (A_actual < 3 * A_inicial),
+
+
+# runge kutta para detencion del sistema
+def runge_kutta_cuarto_orden_detencion_sistema(L, dt):
+    iteraciones = [(0, L, 0, 0, 0, 0,
+                    0)]  # Lista para almacenar los valores de cada iteración: (tiempo_inicio, L, K1, K2, K3, K4, tiempo_siguiente, L_siguiente)
+    tiempo = 0.01
+    iteracion_actual = 0
+    L_anterior = 0
+
+    while condicion_corte_detencion_sistema(L, L_anterior):
+        # Calcular los valores de K1, K2, K3 y K4
+        K1 = - (L / (0.8 * tiempo ** 2)) - L
+        K2 = - ((L + 0.5 * K1 * dt) / (0.8 * (tiempo + 0.5 * dt) ** 2)) - (L + 0.5 * K1 * dt)
+        K3 = - ((L + 0.5 * K2 * dt) / (0.8 * (tiempo + 0.5 * dt) ** 2)) - (L + 0.5 * K2 * dt)
+        K4 = - ((L + K3 * dt) / (0.8 * (tiempo + dt) ** 2)) - (L + K3 * dt)
+
+        # Calcular el siguiente valor de L utilizando el método de Runge-Kutta de cuarto orden
+        L_siguiente = L + (dt / 6) * (K1 + 2 * K2 + 2 * K3 + K4)
+
+        tiempo_siguiente = tiempo + dt
+
+        iteraciones.append(
+            (tiempo, L, K1, K2, K3, K4, tiempo_siguiente, L_siguiente))  # Agregar los valores a la lista de iteraciones
+
+        L_anterior = L
+        L = L_siguiente  # Actualizar el valor de L para la próxima iteración
+        tiempo = tiempo_siguiente
+        iteracion_actual += 1
+
+    return iteraciones, tiempo
+
+
+def condicion_corte_detencion_sistema(L, L_siguiente):
+    return abs(L - L_siguiente) > 1
+
+
+def runge_kutta_cuarto_orden_detencion_cliente(S, dt, reloj_actual):
+    iteraciones = [(0, S, 0, 0, 0, 0,
+                    0)]  # Lista para almacenar los valores de cada iteración: (tiempo_inicio, S, K1, K2, K3, K4, tiempo_siguiente, S_anterior)
+    tiempo = 0
+    iteracion_actual = 0
+    S_anterior = S
+
+    while condicion_corte_detencion_cliente(S, reloj_actual):
+        # Calcular los valores de K1, K2, K3 y K4
+        K1 = (0.2 * S) + 3 - tiempo
+        K2 = (0.2 * (S + 0.5 * K1 * dt)) + 3 - (tiempo + 0.5 * dt)
+        K3 = (0.2 * (S + 0.5 * K2 * dt)) + 3 - (tiempo + 0.5 * dt)
+        K4 = (0.2 * (S + K3 * dt)) + 3 - (tiempo + dt)
+
+        # Calcular el siguiente valor de S utilizando el método de Runge-Kutta de cuarto orden
+        S_siguiente = S + (dt / 6) * (K1 + 2 * K2 + 2 * K3 + K4)
+
+        tiempo_siguiente = tiempo + dt
+
+        iteraciones.append(
+            (tiempo, S, K1, K2, K3, K4, tiempo_siguiente, S_siguiente))  # Agregar los valores a la lista de iteraciones
+
+        S_anterior = S  # Almacenar el valor de S en la iteración anterior
+        S = S_siguiente  # Actualizar el valor de S para la próxima iteración
+        tiempo = tiempo_siguiente
+        iteracion_actual += 1
+
+    return iteraciones
+
+
+def condicion_corte_detencion_cliente(S, reloj):
+    return S * 1.50 > reloj  # no se como plantear esta condicion
+
+
 # =====================================================================================================================
 #
 # TESTS
@@ -740,7 +994,7 @@ def test_cola():
     lamb_maq = 30
     lamb_anticip = 25
     cte_impaciente = 0.33
-    hora_inicio_auxiliar = 12 # Valor entre 6 y 15
+    hora_inicio_auxiliar = 12  # Valor entre 6 y 15
 
     simulador = SistemaColas(semilla=1)
     simulador.generar_parametros(
@@ -774,5 +1028,3 @@ if __name__ == "__main__":
     test_cola()
     end = time.time()
     print(f"Tiempo transcurrido: {round(end - start, 2)} segundos")
-
-

@@ -7,7 +7,7 @@ from components.tp4.resultados_sistema_colas import crear_resultados_simulacion
 import components.tp5.resultado_runge_kutta as trk
 import soporte.runge_kutta as rk
 
-filas_rk = rk.detencion_cliente(463.5, 0.25)
+filas_rk = rk.cuando_detiene(396, 0.5, 0.25)
 print(filas_rk)
 
 dash.register_page(__name__,
