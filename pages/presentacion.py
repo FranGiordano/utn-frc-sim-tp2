@@ -95,7 +95,7 @@ layout = dbc.Container([
             ),
         ]),
 
-dbc.Col([
+        dbc.Col([
             dbc.Card(
                 [
                     dbc.CardImg(src="/assets/cards/tp5.png", top=True),
@@ -116,7 +116,7 @@ dbc.Col([
             ),
         ])
 
-    ])
+    ], className="mb-3")
 ])
     
 
