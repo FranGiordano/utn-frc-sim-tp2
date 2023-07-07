@@ -98,13 +98,13 @@ layout = dbc.Container([
 dbc.Col([
             dbc.Card(
                 [
-                    dbc.CardImg(src="/assets/cards/tp5.webp", top=True),
+                    dbc.CardImg(src="/assets/cards/tp5.png", top=True),
                     dbc.CardBody(
                         [
-                            html.H4("TP5: Modelos de Simulación Combinada", className="card-title"),
+                            html.H4("TP5: Simulaciones Combinadas", className="card-title"),
                             html.P(
-                                "Ejecución de una simulación de líneas de espera (colas) para la simulación del sistema"
-                                " de atención de pasajeros de la estación de tren de Córdoba. ATACA UN VIRUS INFORMATICO",
+                                "Se continua el trabajo práctico anterior, con la adición de un virus que detiene "
+                                "partes del sistema en determinados tiempos en base a ecuaciones diferenciales.",
                                 className="card-text", style={"text-align": "justify"}
                             ),
                             dbc.Button("Ir al proyecto", color="primary", href="/tp5/"),
