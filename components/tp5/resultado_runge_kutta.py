@@ -21,6 +21,7 @@ def crear_resultados_simulacion(filas_guardadas, y):
     df = pd.DataFrame(datos_tabla)
 
     tabla = DataTable(
+        page_size=15,
         id="tabla_resultados_simulacion",
         data=df.to_dict('records'),
         columns=[{'id': c, 'name': c} for c in df.columns],

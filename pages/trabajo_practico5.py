@@ -34,11 +34,11 @@ layout = html.Div([
                 value=""
             ),
             dbc.InputGroupText("Mostrar tabla Runge-Kutta")
-        ]),
+        ], id="ig_runge", style={"display": "none"}),
 
         html.Div({}, id="div_seleccion_runge")
 
-    ], className="mt-3")
+    ], className="mt-3 mb-3")
 ])
 
 
@@ -48,12 +48,13 @@ layout = html.Div([
     Output("btn_simular_5", "disabled", allow_duplicate=True),
     Output("div_resultados_tp5", "children", allow_duplicate=True),
     Output("div_seleccion_runge", "children", allow_duplicate=True),
+    Output("ig_runge", "style", allow_duplicate=True),
     Input("btn_simular_5", "n_clicks"),
     prevent_initial_call=True
 )
 def cargar_boton(n_clicks):
     contenido_boton = [dbc.Spinner(size="sm"), " Cargando..."]
-    return contenido_boton, True, {}, {}
+    return contenido_boton, True, {}, {}, {"display": "none"}
 
 
 # Callback para el proceso de simulación y generación de resultados
@@ -63,6 +64,7 @@ def cargar_boton(n_clicks):
     Output("btn_simular_5", "children"),
     Output("btn_simular_5", "disabled"),
     Output("ddm_runge", "options"),
+    Output("ig_runge", "style"),
     Input("btn_simular_5", "n_clicks"),
     State("in_cantidad_iteraciones_5", "value"),
     State("in_iteracion_a_grabar_5", "value"),
@@ -98,13 +100,13 @@ def ejecutar_simulacion(n_clicks, ctd_iter, iter_a_grabar, semilla, a_lleg_mod, 
     lista = []
     for i in filas:
         if i[65] is not None and i[56] is not None:
-            lista.append({"label": f"{i[0]} - Llegada Virus", "value": [i[0], 'Llegada Virus', i[1], i[65], 0.001]})
+            lista.append({"label": f"{i[0]} - Llegada Virus", "value": [i[0], 'Llegada Virus', i[1], i[65], 0.1]})
         if i[60] is not None and i[58] is not None:
-            lista.append({"label": f"{i[0]} - Detencion Servicio", "value": [i[0], 'Detencion Servicio', i[1], 0.001]})
+            lista.append({"label": f"{i[0]} - Detencion Servicio", "value": [i[0], 'Detencion Servicio', i[1], 0.1]})
         if i[58] is not None and i[63] is not None:
-            lista.append({"label": f"{i[0]} - Detencion Cliente", "value": [i[0], 'Detencion Cliente', i[1], 0.001]})
+            lista.append({"label": f"{i[0]} - Detencion Cliente", "value": [i[0], 'Detencion Cliente', i[1], 0.1]})
 
-    return resultado, False, "Generar simulación", False, lista
+    return resultado, False, "Generar simulación", False, lista, {"display": "flex"}
 
 @callback(
     Output("div_seleccion_runge", "children"),
