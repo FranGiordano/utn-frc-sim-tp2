@@ -76,7 +76,20 @@ def crear_resultados_simulacion(filas):
             {"name": "Tiempo ventanilla inmediata 1 en estado ocupado", "id": "acum_inmed1_ocupado"},
             {"name": "Porcentaje ocupación ventanilla inmediata 1", "id": "pct_ocup_inmed1"},
             {"name": "Porcentaje pasajeros anticipada que perdieron el tren", "id": "pct_perdieron_tren"},
-            {"name": "Porcentaje pasajeros interrumpidos al usar la máquina", "id": "pct_interrumpidos_maq"}
+            {"name": "Porcentaje pasajeros interrumpidos al usar la máquina", "id": "pct_interrumpidos_maq"},
+
+            # valores agregados para tp5
+            {"name": "Cont clientes que llegan", "id": "cont_clientes_llegan"},
+            {"name": "RND valor B", "id": "rnd_valor_b"},
+            {"name": "Demora proxima llegada", "id": "dem_prox_llegada"},
+            {"name": "Tiempo proxima llegada", "id": "tiemp_prox_llegada"},
+            {"name": "RND tipo llegada", "id": "RND_tipo_llegada"},
+            {"name": "Tipo llegada", "id": "tipo_llegada"},
+            {"name": "Tiempo detenido el servicio V1", "id": "tiempo_detenido_v1"},
+            {"name": "Tiempo servicio V1 normalidad", "id": "tiempo_normalidad_v1"},
+            {"name": "Tiempo remanente cliente interrumpido", "id": "Tiempo_remanente"},
+            {"name": "Tiempo detenida la llegada cliente", "id": "tiempo_detenido_cliente"},
+            {"name": "Llegada cliente normalidad", "id": "tiempo_normalidad_cliente"},
         ],
 
         data=[
@@ -134,7 +147,22 @@ def crear_resultados_simulacion(filas):
                 "acum_inmed1_ocupado": str_reloj(i[47]),
                 "pct_ocup_inmed1": f"{i[48] * 100:.2f}%" if i[48] is not None else "",
                 "pct_perdieron_tren": f"{i[49] * 100:.2f}%" if i[49] is not None else "",
-                "pct_interrumpidos_maq": f"{i[50] * 100:.2f}%" if i[50] is not None else ""
+                "pct_interrumpidos_maq": f"{i[50] * 100:.2f}%" if i[50] is not None else "",
+
+
+                # valores agregados para tp5
+                "cont_clientes_llegan": f"{i[55]}" if i[55] is not None else "0",
+                "rnd_valor_b": i[65],
+                "dem_prox_llegada": str_reloj(i[56]),
+                "tiemp_prox_llegada": str_reloj(i[57]),
+                "RND_tipo_llegada": i[58],
+                "tipo_llegada": i[59],
+                "tiempo_detenido_v1": str_reloj(i[60]),
+                "tiempo_normalidad_v1": str_reloj(i[61]),
+                "Tiempo_remanente": f"{str_reloj(i[62])}" if i[62] is not None else "",
+                "tiempo_detenido_cliente": str_reloj(i[63]),
+                "tiempo_normalidad_cliente": str_reloj(i[64]),
+
             }
             for i in filas
         ],
