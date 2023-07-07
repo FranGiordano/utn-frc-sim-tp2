@@ -150,25 +150,23 @@ class SistemaColas:
             [],  # 51. (y más) Pasajeros
             None,  # 52. Cliente siendo atendido en ventanilla auxiliar (Lo añadí tarde, por lo que quedó acá)
             None,  # 53. Cliente siendo atendido en anticipada (idem que 52)
-            None,
-            # 54. Cliente siendo atendido en maquina (idem que 52 y 53) La idea de estos es facilitar los cálculos
+            None,  # 54. Cliente siendo atendido en maquina (idem que 52 y 53) La idea de estos es facilitar los cálculos
 
             0,  # "Cont clientes que llegan": i[55],
             None,  # 56 "Demora proxima llegada virus": i[56],
             None,  # 57 "Tiempo proxima llegada virus": i[57],
             None,  # 58 "RND tipo llegada (servidor o llegada)": i[58],
             None,  # 59 "Tipo llegada (servidor o llegada)": i[59],
-            None,  # 60 "Tiempo detenido el servicio V1": i[60],
+            None,  # 60 "Tiempo se detiene el servicio V1": i[60],
             None,  # 61 "Tiempo servicio V1 normalidad": i[61],
             None,  # 62 Tiempo remanente de cliente interrumpido i[62]
             None,  # 63 "Tiempo detenida la llegada cliente": i[63],
             None,  # 64 "Llegada cliente normalidad": i[64]
             None,  # 65 Valor de B para generar proxima llegada i[65]
 
-            [],   # 66 Cola para clientes despues de llegada virus
-            "Normal", # 67 estado sistema [normal, virus]
-            0,    # 68 contador de clientes despues de llegada virus.
-            0,    # 69 cliente atendido ventanilla 1 que fue interrumpido
+            [],        # 66 Cola para clientes despues de llegada virus
+            "Normal" , # 67 estado sistema [normal, virus]
+            0,         # 68 contador de clientes despues de llegada virus.
         ]
 
         return vector_estado
@@ -296,60 +294,71 @@ class SistemaColas:
     # Metodo de TP5 relacionadas a los eventos
     def _llegada_virus(self, nve):
 
-        # 1. Ante el evento de llegada de virus genero el tipo de interrupcion.
+        # 1. Genero el tipo de interrupcion
         rnd_tipo = self._generador.random()
         nve[58] = rnd_tipo
 
-        if rnd_tipo <= 0.35:      # Interrumpo servicio V1.
+        if rnd_tipo <= 0.35:
 
+            # 2. Interrumpo servicio V1.
             nve[59] = "Servicio Ventanilla 1"
 
-            #3. Verifico si esta ocupado, si esta ocupado veo el tiempo remanente
+            # 3. Verifico si esta ocupado, si está ocupado:
+            #                       genero tiempo remanente
+            #                       cambio estado del cliente
+            #                       agrego +1 a la cola salida inmediata
             if nve[12] == "Ocupado":
-                nve[62] = nve[13] - nve[1] #calculo remanencia
+                nve[62] = nve[13] - nve[1]
+                pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
+                pasajero.estado = "En cola"
+                nve[39] = + 1
 
-            nve[12] = "Detenida" # estado ventanilla cambia
-            nve[69] = nve[14] #guardo el numero del cliente
-            nve[13] = None # elimino fin de atencion cliente
-            nve[14] = None
+            # 4. acciones referidas a la ventanilla:
+            #               cambio estado a "Detenida"
+            #               elimino fin de atencion cliente
+            nve[12] = "Detenida"
+            nve[13] = None
 
-            # 3. genero el tiempo que el servidor esta detenido.
+            # 5. genero fin de detencion del servidor.
             vectorRK = rk.detencion_servidor(nve[1], 0.001)
             tiempo = vectorRK[-1][6]
-            tiempo_real = tiempo * 8  # pondero el tiempo t = 1 = 8
+            tiempo_real = tiempo * 4  # pondero el tiempo t = 1 = 4 (Cambie ponderacion)
             nve[60] = tiempo_real
             nve[61] = tiempo_real + nve[1]
 
-        else:                   # Interrumpo llegada clientes.
-
+        else:
+            # Interrumpo llegada clientes.
             nve[59] = "Llegada Cliente"
 
-            nve[67] = "virus"
+            # 1. estado del sistema en general pasa a estar con virus
+            nve[67] = "Llegadas Detenidas"
 
-            # 1. genero tiempo que las llegadas estan detenidas
+            # 2. genero tiempo que las llegadas estan detenidas
             vectorRk = rk.detencion_cliente(nve[1], 0.001)
             tiempo = vectorRk[-1][6]
-            tiempo_real = tiempo * 27  # pondero el tiempo t = 1 =27
+            tiempo_real = tiempo * 6  # pondero el tiempo t = 1 = 6
             nve[63] = tiempo_real
             nve[64] = tiempo_real + nve[1]
 
 
     def _fin_interrupcion_virus_servicio(self, nve):
+        #1. Elimino el fin de interrupcion, dado que ya se cumplio
+        nve[61] = None
+        nve[60] = None
 
-        '''# atiendo el tiempo restante al cliente que fue interrumpido
-        if nve[62] is not None:
-            nve[13] = nve[62] + nve[1]  # Genero nuevo fin de atencion
-            nve[61] = None #actualizo el valor de fin atencion
-        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
-        pasajero.estado = "Siendo atendido"'''
+        #2. Existen 2 caminos: cuando interrumpi estaba atendiendo o estaba libre
+        if nve[14] is not None:
+            # Interrumpi atencion cliente, en ese caso:
+            #               - genero el nuevo fin de atencion
+            #               - cambio estado del cliente a siendo atendido
+            #               - cambio estado de la maquina a "Ocupado"
+            #               - resto uno de la cola de ventanilla 1
+            nve[13] = nve[62] + nve[1]
+            pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
+            pasajero.estado = "Siendo atendido"
+            nve[39] -= 1
+            nve[12] = "Ocupado"
 
-        # El cliente que era atendido, ahora va a terminar su atencion
-
-
-        if nve[62] is not None:
-            nve[13] = nve[62] + nve[1] # continuo con el fin de servicio
-            nve[14] = nve[69] #pongo el numero del cliente
-            nve[62] = None  # elimino el tiempo remanente
         else:
             # Deshabiltiamos la ventanilla si ya se encuentra en el final del día
             if nve[35] < nve[38]:
@@ -368,43 +377,55 @@ class SistemaColas:
                                                             ["En ventanilla salida inmediata cercanía",
                                                              "En ventanilla salida inmediata interprovincial"])
                 except IndexError:
-                    print("hjola")
+                    print("")
                 nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
 
-        nve[60] = None # elimino tiempo que estuvo detenido el servico
-        nve[61] = None # elimino el tiempo que vuelve servicio a normalidad
-
+        #3. genero la proxima interrupcion
         b = self._generador.random()
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
 
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 10  # pondero el tiempo t = 1 = 3
 
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
 
     def _fin_interrupcion_virus_cliente(self, nve):
 
-        # Genero la proxima detencion de la llegada del cliente.
+        # Debo habilitar que el sistema reciba llegadas.
+
+        # 1. Genero la proxima detencion de la llegada del cliente.
         b = self._generador.random()
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 10  # pondero el tiempo t = 1 = 10
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
 
-        # Regreso el estado a normal.
-        nve[67] = "normal"
-        # elimino cuando era el fin de interrupcion del cliente
+        # 2. Vuelvo el sistema al estado que estaba siempre
+        #       - vuelvo al estado del sistema "Normal"
+        #       - elimino el registro de fin interrupcion llegadas
+        nve[67] = "Normal"
         nve[64] = None
 
-
-        # Los clientes de la cola de llegada, van a pasar a ser pasajeros
+        # 3. Los clientes de la cola de llegada, van a pasar a ser pasajeros.
         nve[51] = nve[51] + nve[66]
+
+
+        #4. Se incrementan a cada cola del servidor los clientes que van a estar esperando.
+        for pasajero in (nve[51]):
+            match pasajero.tipo_atencion:
+                case "En ventanilla salida inmediata cercanía" | "En ventanilla salida inmediata interprovincial":
+                    nve[39] += 1
+                case "En ventanilla salida anticipada":
+                    nve[40] += 1
+                case "En máquina salida inmediata cercanía":
+                    nve[41] += 1
+
+        # Se borra la cola de clientes que "esperan afuera"
         nve[66] = []
-        nve[68] = 0
 
     # -----------------------------------------------------------------------------
     def _inicio_hora_critica(self, nve):
@@ -423,7 +444,30 @@ class SistemaColas:
         nve[18] = "Libre"  # Ventanilla anticipada
         nve[26] = "Libre"  # Máquina
 
+        #Seteo todos los valores de la interrupcion
+        nve[56] = None
+        nve[57] = None
+        nve[59] = None
+        nve[60] = None
+        nve[61] = None
+        nve[62] = None
+        nve[63] = None
+        nve[64] = None
+        nve[65] = None
         nve[35] += 24
+
+        # Nuevo virus
+        if nve[0] != 1:
+            b = self._generador.random()
+            nve[65] = b
+
+            tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+            solucion = tablasRK[-1][6]
+
+            tiempo_real = solucion * 30  # pondero el tiempo t = 1 = 30
+
+            nve[56] = tiempo_real
+            nve[57] = tiempo_real + nve[1]
 
     def _llegada_pasajero(self, nve):
         """Método que se ejecuta ante el evento Llegada pasajero"""
@@ -435,15 +479,15 @@ class SistemaColas:
         self._nro_cliente += 1
         pasajero = self._Pasajero(self._nro_cliente, nve[7], "En cola", nve[1])
 
-        # verico que no hay virus en el servidor, Si hay un virus, sumo uno al contador
-        # de clientes que llegaron en virus y agrego el cliente a la cola.
-        if nve[67] == "virus":
+        # Próxima llegada de pasajero
+        nve[3], nve[4], nve[5], nve[6], nve[7] = self._generar_nueva_llegada_pasajero(nve[1])
+
+        # verifico que no hay virus en el servidor, Si hay un virus, sumo uno al contador
+        # de clientes que llegaron en virus y agrego el cliente a la cola "pasajeros detenidos".
+        if nve[67] == "Llegadas Detenidas":
             nve[66].append(pasajero)
             nve[68] += 1
             return True
-
-        # Próxima llegada de pasajero
-        nve[3], nve[4], nve[5], nve[6], nve[7] = self._generar_nueva_llegada_pasajero(nve[1])
 
         # Dependiendo del tipo de atención del pasajero nuevo y si hay lugar, se lo atiende:
         match pasajero.tipo_atencion:
@@ -871,6 +915,7 @@ class SistemaColas:
             for i in pasajeros:
                 error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
             raise Exception(error)
+            print (pasajeros)
 
     def _generar_nueva_llegada_pasajero(self, reloj):
         """Genera el proceso del cálculo del próximo tiempo de llegada de pasajero con su correspondiente tipo de atención"""
