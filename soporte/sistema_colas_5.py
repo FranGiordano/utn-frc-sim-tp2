@@ -449,7 +449,7 @@ class SistemaColas:
             tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.01)
             solucion = tablasRK[-1][6]
 
-            tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
+            tiempo_real = solucion * 0.7  # pondero el tiempo t = 1 = 30
 
             nve[56] = tiempo_real
             nve[57] = tiempo_real + nve[1]
@@ -889,18 +889,19 @@ class SistemaColas:
 
         return primer_pasajero
 
-        def _buscar_pasajero_por_nro(self, pasajeros, nro):
-            """Devuelve un pasajero dado su número"""
+    def _buscar_pasajero_por_nro(self, pasajeros, nro):
+        """Devuelve un pasajero dado su número"""
 
+        for i in pasajeros:
+            if i.nro == nro:
+                return i
+        else:
+            error = f"No se encontró ningún pasajero de número {nro} \n" \
+                    f"La lista de pasajeros cuenta con los siguientes clientes: \n"
             for i in pasajeros:
-                if i.nro == nro:
-                    return i
-            else:
-                error = f"No se encontró ningún pasajero de número {nro} \n" \
-                        f"La lista de pasajeros cuenta con los siguientes clientes: \n"
-                for i in pasajeros:
-                    error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
-                raise Exception(error)
+                error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
+            raise Exception(error)
+
     def _buscar_pasajero_por_nro(self, pasajeros, nro):
         """Devuelve un pasajero dado su número"""
 
