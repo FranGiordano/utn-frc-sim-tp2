@@ -164,6 +164,8 @@ class SistemaColas:
             None,  # 63 "Tiempo detenida la llegada cliente": i[63],
             None,  # 64 "Llegada cliente normalidad": i[64]
             None,  # 65 Valor de B para generar proxima llegada i[65]
+
+            [],    # 66 Cola para clientes despues de llegada virus
         ]
 
         return vector_estado
@@ -395,6 +397,9 @@ class SistemaColas:
 
         # Actualizo el contador del objeto pasajero
         nve[55] += 1
+
+        #verico
+        if nve[]
 
         # Creamos un objeto pasajero
         self._nro_cliente += 1
