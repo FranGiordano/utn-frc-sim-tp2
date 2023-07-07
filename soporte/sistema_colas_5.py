@@ -203,7 +203,7 @@ class SistemaColas:
             self._interrupcion_inicio = nve[1]
             b = self._generador.random()
             nve[65] = b
-            tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+            tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.01)
             solucion = tablasRK[-1][6]
 
             tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
@@ -315,9 +315,9 @@ class SistemaColas:
             #                   - "Lo agrego a la cola"
             if nve[12] == "Ocupado":
                 if nve[13] is not None:
-                    nve[62] = nve[13] - nve[1] #calculo tiempo remanente
-                    nve[69] = nve[14]  # guardo el numero del cliente de ventanilla 1
-                    nve[13] = None  # elimino fin de atencion cliente
+                    nve[62] = nve[13] - nve[1] # calculo tiempo remanente
+                    nve[69] = nve[14]          # guardo el numero del cliente de ventanilla 1
+                    nve[13] = None             # elimino fin de atencion cliente
                     nve[39] += 1
 
             nve[14] = None
@@ -326,7 +326,7 @@ class SistemaColas:
             nve[12] = "Detenida"
 
             # 3. genero el tiempo que el servidor esta detenido.
-            vectorRK = rk.detencion_servidor(nve[1], 0.001)
+            vectorRK = rk.detencion_servidor(nve[1], 0.01)
             tiempo = vectorRK[-1][6]
             tiempo_real = tiempo * 10  # pondero el tiempo t = 1 = 6
             nve[60] = tiempo_real
@@ -341,7 +341,7 @@ class SistemaColas:
             nve[67] = "Llegada Detenida"
 
             # 2. Genero el tiempo que las llegadas estan detenidas
-            vectorRk = rk.detencion_cliente(nve[1], 0.001)
+            vectorRk = rk.detencion_cliente(nve[1], 0.01)
             tiempo = vectorRk[-1][6]
             tiempo_real = tiempo * 10  # pondero el tiempo t = 1 =27
             nve[63] = tiempo_real
@@ -366,7 +366,7 @@ class SistemaColas:
         # Genero la proxima llegada del virus
         b = self._generador.random()
         nve[65] = b
-        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.01)
         tiempo_llegada = tablasRK[-1][6]
 
         tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
@@ -379,7 +379,7 @@ class SistemaColas:
         # Genero la proxima detencion de la llegada del cliente.
         b = self._generador.random()
         nve[65] = b
-        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
+        tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.01)
         tiempo_llegada = tablasRK[-1][6]
         tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
         nve[56] = tiempo_real
@@ -443,6 +443,17 @@ class SistemaColas:
             nve[68] = 0
             nve[69] = 0
 
+            # Genero la primera interrupcion de nuevo:
+            b = self._generador.random()
+            nve[65] = b
+            tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.01)
+            solucion = tablasRK[-1][6]
+
+            tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
+
+            nve[56] = tiempo_real
+            nve[57] = tiempo_real + nve[1]
+
         nve[35] += 24
 
     def _llegada_pasajero(self, nve):
@@ -460,7 +471,7 @@ class SistemaColas:
 
         # verico que no hay virus en el servidor, Si hay un virus, sumo uno al contador
         # de clientes que llegaron en virus y agrego el cliente a la cola.
-        if nve[67] == "Llegada Cliente":
+        if nve[67] == "Llegada Detenida":
             nve[66].append(pasajero)
             nve[68] += 1
         else:
@@ -878,6 +889,18 @@ class SistemaColas:
 
         return primer_pasajero
 
+        def _buscar_pasajero_por_nro(self, pasajeros, nro):
+            """Devuelve un pasajero dado su número"""
+
+            for i in pasajeros:
+                if i.nro == nro:
+                    return i
+            else:
+                error = f"No se encontró ningún pasajero de número {nro} \n" \
+                        f"La lista de pasajeros cuenta con los siguientes clientes: \n"
+                for i in pasajeros:
+                    error += f"{i.nro} - {i.estado} - {i.tipo_atencion} \n"
+                raise Exception(error)
     def _buscar_pasajero_por_nro(self, pasajeros, nro):
         """Devuelve un pasajero dado su número"""
 
