@@ -152,10 +152,10 @@ def crear_resultados_simulacion(filas):
 
                 # valores agregados para tp5
                 "cont_clientes_llegan": f"{i[55]}" if i[55] is not None else "0",
-                "rnd_valor_b": i[65],
+                "rnd_valor_b": f"{i[65]:.2f}" if i[65] is not None else "",
                 "dem_prox_llegada": str_reloj(i[56]),
                 "tiemp_prox_llegada": str_reloj(i[57]),
-                "RND_tipo_llegada": i[58],
+                "RND_tipo_llegada": f"{i[58]:.2f}" if i[58] is not None else "",
                 "tipo_llegada": i[59],
                 "tiempo_detenido_v1": str_reloj(i[60]),
                 "tiempo_normalidad_v1": str_reloj(i[61]),
@@ -279,6 +279,8 @@ def crear_resultados_simulacion(filas):
         merge_duplicate_headers=True,
 
         page_size=15,
+
+        id="tabla_tp5",
 
         cell_selectable=True,
 

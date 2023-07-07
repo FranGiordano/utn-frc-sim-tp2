@@ -47,9 +47,6 @@ def crear_resultados_simulacion(filas_guardadas, y):
         fixed_rows={'headers': True},
     )
 
-
-
-
     resultado = html.Div([
         html.Center(html.H2("Runge Kutta"), className="mt-3"),
         html.Center(html.Div(tabla, className="mt-3",))
