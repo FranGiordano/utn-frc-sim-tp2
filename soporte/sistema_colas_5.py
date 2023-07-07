@@ -72,20 +72,22 @@ class SistemaColas:
         vector_actual = []
 
         # Ejecución de simulación y anexo de vectores a filas para mostrar
+        total_iter = 10000
+
         for i in range(ctd_iteraciones):
 
             vector_actual = self._siguiente_vector(vector_anterior)
 
-            if iteracion_a_grabar <= (i + 1) < iteracion_a_grabar + 500:
+            if iteracion_a_grabar <= (i + 1) < iteracion_a_grabar + total_iter:
                 filas_guardadas.append(vector_actual)
 
             if i != (ctd_iteraciones - 1):
                 vector_anterior = vector_actual
 
         # Se anexan los dos últimos vectores en caso de que no hayan sido anexados antes
-        if not (iteracion_a_grabar <= (vector_anterior[0]) < iteracion_a_grabar + 500):
+        if not (iteracion_a_grabar <= (vector_anterior[0]) < iteracion_a_grabar + total_iter):
             filas_guardadas.append(vector_anterior)
-        if not (iteracion_a_grabar <= (vector_actual[0]) < iteracion_a_grabar + 500):
+        if not (iteracion_a_grabar <= (vector_actual[0]) < iteracion_a_grabar + total_iter):
             filas_guardadas.append(vector_actual)
 
         return filas_guardadas
@@ -401,11 +403,58 @@ class SistemaColas:
         # elimino cuando era el fin de interrupcion del cliente
         nve[64] = None
 
-
-        # Los clientes de la cola de llegada, van a pasar a ser pasajeros
         nve[51] = nve[51] + nve[66]
+
+        if self._contar_en_cola(nve[51], "En cola",
+                                                ["En ventanilla salida inmediata cercanía",
+                                                 "En ventanilla salida inmediata interprovincial"]) > 0:
+
+            pasajero_ventanilla = self._buscar_primer_pasajero(nve[51], "En cola",
+                                                    ["En ventanilla salida inmediata cercanía",
+                                                     "En ventanilla salida inmediata interprovincial"])
+
+
+
+            if nve[12] == "Libre":
+                nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero_ventanilla, nve[1])
+
+            elif nve[15] == "Libre":
+                nve[15], nve[10], nve[11], nve[16], nve[17] = self._atender_pasajero(pasajero_ventanilla, nve[1])
+
+            elif nve[22] == "Libre":
+                nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero_ventanilla, nve[1])
+
+            else:
+                nve[39] += 1
+
+
+        if self._contar_en_cola(nve[51], "En cola",
+                                                           ["En ventanilla salida anticipada"]) > 0:
+            pasajero_anticipado = self._buscar_primer_pasajero(nve[51], "En cola",
+                                                               ["En ventanilla salida anticipada"])
+
+
+            if nve[18] == "Libre":
+                nve[18], nve[19], nve[20], nve[21], nve[53] = self._atender_pasajero(pasajero_anticipado, nve[1])
+                nve[42] += 1
+
+            elif nve[22] == "Libre":
+                nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero_anticipado, nve[1])
+                nve[42] += 1
+
+        if self._contar_en_cola(nve[51], "En cola",
+                                                           ["En máquina salida inmediata cercanía"])> 0:
+            pasajero_maquina = self._buscar_primer_pasajero(nve[51], "En cola",
+                                                               ["En máquina salida inmediata cercanía"])
+
+            if nve[26] == "Libre":
+                nve[26], nve[27], nve[28], nve[29], nve[54] = self._atender_pasajero(pasajero_maquina, nve[1])
+        # Los clientes de la cola de llegada, van a pasar a ser pasajeros
+
         nve[66] = []
         nve[68] = 0
+
+
 
     # -----------------------------------------------------------------------------
     def _inicio_hora_critica(self, nve):
@@ -423,6 +472,7 @@ class SistemaColas:
         nve[15] = "Libre"  # Ventanilla 2
         nve[18] = "Libre"  # Ventanilla anticipada
         nve[26] = "Libre"  # Máquina
+
 
         nve[35] += 24
 
