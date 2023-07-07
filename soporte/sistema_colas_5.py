@@ -206,7 +206,7 @@ class SistemaColas:
             tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
             solucion = tablasRK[-1][6]
 
-            tiempo_real = solucion * 30  # pondero el tiempo t = 1 = 30
+            tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
 
             nve[56] = tiempo_real
             nve[57] = tiempo_real + nve[1]
@@ -300,86 +300,76 @@ class SistemaColas:
         rnd_tipo = self._generador.random()
         nve[58] = rnd_tipo
 
+        #borro llegada
+        nve[57] = None
+
         if rnd_tipo <= 0.35:      # Interrumpo servicio V1.
 
             nve[59] = "Servicio Ventanilla 1"
 
-            #3. Verifico si esta ocupado, si esta ocupado veo el tiempo remanente
+            #3. Verifico si esta ocupado, si esta ocupado calculo:
+            #                   - tiempo que falta para que termine
+            #                   - guardo el cliente que estaba atendiendo
+            #                   - elimino el fin de atencion de cliente
+            #                   - elimino al cliente
+            #                   - "Lo agrego a la cola"
             if nve[12] == "Ocupado":
-                nve[62] = nve[13] - nve[1] #calculo remanencia
+                if nve[13] is not None:
+                    nve[62] = nve[13] - nve[1] #calculo tiempo remanente
+                    nve[69] = nve[14]  # guardo el numero del cliente de ventanilla 1
+                    nve[13] = None  # elimino fin de atencion cliente
+                    nve[39] += 1
 
-            nve[12] = "Detenida" # estado ventanilla cambia
-            nve[69] = nve[14] #guardo el numero del cliente
-            nve[13] = None # elimino fin de atencion cliente
             nve[14] = None
+
+            # cambio estado de la ventanilla
+            nve[12] = "Detenida"
 
             # 3. genero el tiempo que el servidor esta detenido.
             vectorRK = rk.detencion_servidor(nve[1], 0.001)
             tiempo = vectorRK[-1][6]
-            tiempo_real = tiempo * 8  # pondero el tiempo t = 1 = 8
+            tiempo_real = tiempo * 10  # pondero el tiempo t = 1 = 6
             nve[60] = tiempo_real
             nve[61] = tiempo_real + nve[1]
 
         else:                   # Interrumpo llegada clientes.
 
+
             nve[59] = "Llegada Cliente"
 
-            nve[67] = "virus"
+            # 1. Pongo estado "Llegada Detenida"
+            nve[67] = "Llegada Detenida"
 
-            # 1. genero tiempo que las llegadas estan detenidas
+            # 2. Genero el tiempo que las llegadas estan detenidas
             vectorRk = rk.detencion_cliente(nve[1], 0.001)
             tiempo = vectorRk[-1][6]
-            tiempo_real = tiempo * 27  # pondero el tiempo t = 1 =27
+            tiempo_real = tiempo * 10  # pondero el tiempo t = 1 =27
             nve[63] = tiempo_real
             nve[64] = tiempo_real + nve[1]
 
 
     def _fin_interrupcion_virus_servicio(self, nve):
 
-        '''# atiendo el tiempo restante al cliente que fue interrumpido
-        if nve[62] is not None:
-            nve[13] = nve[62] + nve[1]  # Genero nuevo fin de atencion
-            nve[61] = None #actualizo el valor de fin atencion
-        pasajero = self._buscar_pasajero_por_nro(nve[51], nve[14])
-        pasajero.estado = "Siendo atendido"'''
-
         # El cliente que era atendido, ahora va a terminar su atencion
-
-
         if nve[62] is not None:
             nve[13] = nve[62] + nve[1] # continuo con el fin de servicio
-            nve[14] = nve[69] #pongo el numero del cliente
-            nve[62] = None  # elimino el tiempo remanente
+            nve[14] = nve[69]          # pongo el numero del cliente
+            nve[39] -= 1               # le resto uno a la cola
+            nve[62] = None             # elimino el tiempo remanente
         else:
-            # Deshabiltiamos la ventanilla si ya se encuentra en el final del día
-            if nve[35] < nve[38]:
-                nve[12] = "Deshabilitado"
-
-            # Si no hay más pasajeros en cola lo liberamos
-            elif nve[39] == 0:
-                nve[12] = "Libre"
-
-            # Si hay más pasajeros, lo atendemos
-            elif nve[39] > 0:
-                nve[39] -= 1
-
-                try:
-                    pasajero = self._buscar_primer_pasajero(nve[51], "En cola",
-                                                            ["En ventanilla salida inmediata cercanía",
-                                                             "En ventanilla salida inmediata interprovincial"])
-                except IndexError:
-                    print("hjola")
-                nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
+            nve[12] = "Libre"
 
         nve[60] = None # elimino tiempo que estuvo detenido el servico
         nve[61] = None # elimino el tiempo que vuelve servicio a normalidad
+        nve[62] = None  # elimino el tiempo remanente
 
+        # Genero la proxima llegada del virus
         b = self._generador.random()
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
 
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
 
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
@@ -391,20 +381,33 @@ class SistemaColas:
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
 
         # Regreso el estado a normal.
-        nve[67] = "normal"
+        nve[67] = "Normal"
         # elimino cuando era el fin de interrupcion del cliente
         nve[64] = None
 
 
         # Los clientes de la cola de llegada, van a pasar a ser pasajeros
         nve[51] = nve[51] + nve[66]
+
+        for pasajero in nve[66]:
+            match pasajero.tipo_atencion:
+                case "En ventanilla salida inmediata cercanía" | "En ventanilla salida inmediata interprovincial":
+                    nve[39] += 1
+
+                case "En ventanilla salida anticipada":
+                    nve[40] += 1
+
+                case "En máquina salida inmediata cercanía":
+                    nve[41] += 1
+
         nve[66] = []
         nve[68] = 0
+
 
     # -----------------------------------------------------------------------------
     def _inicio_hora_critica(self, nve):
@@ -423,6 +426,23 @@ class SistemaColas:
         nve[18] = "Libre"  # Ventanilla anticipada
         nve[26] = "Libre"  # Máquina
 
+        # Seteo interrupciones, dado que es un nuevo dia.
+        if nve[55] > 1:
+            nve[56] = None
+            nve[57] = None
+            nve[58] = None
+            nve[59] = None
+            nve[60] = None
+            nve[61] = None
+            nve[62] = None
+            nve[63] = None
+            nve[64] = None
+            nve[65] = None
+            nve[66] = []
+            nve[67] = "Normal"
+            nve[68] = 0
+            nve[69] = 0
+
         nve[35] += 24
 
     def _llegada_pasajero(self, nve):
@@ -435,58 +455,57 @@ class SistemaColas:
         self._nro_cliente += 1
         pasajero = self._Pasajero(self._nro_cliente, nve[7], "En cola", nve[1])
 
-        # verico que no hay virus en el servidor, Si hay un virus, sumo uno al contador
-        # de clientes que llegaron en virus y agrego el cliente a la cola.
-        if nve[67] == "virus":
-            nve[66].append(pasajero)
-            nve[68] += 1
-            return True
-
         # Próxima llegada de pasajero
         nve[3], nve[4], nve[5], nve[6], nve[7] = self._generar_nueva_llegada_pasajero(nve[1])
 
+        # verico que no hay virus en el servidor, Si hay un virus, sumo uno al contador
+        # de clientes que llegaron en virus y agrego el cliente a la cola.
+        if nve[67] == "Llegada Cliente":
+            nve[66].append(pasajero)
+            nve[68] += 1
+        else:
         # Dependiendo del tipo de atención del pasajero nuevo y si hay lugar, se lo atiende:
-        match pasajero.tipo_atencion:
-            case "En ventanilla salida inmediata cercanía" | "En ventanilla salida inmediata interprovincial":
+            match pasajero.tipo_atencion:
+                case "En ventanilla salida inmediata cercanía" | "En ventanilla salida inmediata interprovincial":
 
-                if nve[12] == "Libre":
-                    nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
+                    if nve[12] == "Libre":
+                        nve[12], nve[10], nve[11], nve[13], nve[14] = self._atender_pasajero(pasajero, nve[1])
 
-                elif nve[15] == "Libre":
-                    nve[15], nve[10], nve[11], nve[16], nve[17] = self._atender_pasajero(pasajero, nve[1])
+                    elif nve[15] == "Libre":
+                        nve[15], nve[10], nve[11], nve[16], nve[17] = self._atender_pasajero(pasajero, nve[1])
 
-                elif nve[22] == "Libre":
-                    nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
+                    elif nve[22] == "Libre":
+                            nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
 
-                else:
-                    nve[39] += 1
+                    else:
+                        nve[39] += 1
 
-            case "En ventanilla salida anticipada":
+                case "En ventanilla salida anticipada":
 
-                if nve[18] == "Libre":
-                    nve[18], nve[19], nve[20], nve[21], nve[53] = self._atender_pasajero(pasajero, nve[1])
-                    nve[42] += 1
+                    if nve[18] == "Libre":
+                        nve[18], nve[19], nve[20], nve[21], nve[53] = self._atender_pasajero(pasajero, nve[1])
+                        nve[42] += 1
 
-                elif nve[22] == "Libre":
-                    nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
-                    nve[42] += 1
+                    elif nve[22] == "Libre":
+                        nve[22], nve[23], nve[24], nve[25], nve[52] = self._atender_pasajero(pasajero, nve[1])
+                        nve[42] += 1
 
-                else:
-                    # Si no encuentra espacio para ser atendido, se coloca en cola
-                    # En el caso de que sea el primero en cola, se calcula el prox fin de impaciencia
-                    nve[40] += 1
-                    if nve[40] == 1:
-                        nve[34] = pasajero.hora_llegada + self._cte_espera_impaciente
+                    else:
+                        # Si no encuentra espacio para ser atendido, se coloca en cola
+                        # En el caso de que sea el primero en cola, se calcula el prox fin de impaciencia
+                        nve[40] += 1
+                        if nve[40] == 1:
+                            nve[34] = pasajero.hora_llegada + self._cte_espera_impaciente
 
-            case "En máquina salida inmediata cercanía":
+                case "En máquina salida inmediata cercanía":
 
-                if nve[26] == "Libre":
-                    nve[26], nve[27], nve[28], nve[29], nve[54] = self._atender_pasajero(pasajero, nve[1])
-                else:
-                    nve[41] += 1
+                    if nve[26] == "Libre":
+                        nve[26], nve[27], nve[28], nve[29], nve[54] = self._atender_pasajero(pasajero, nve[1])
+                    else:
+                        nve[41] += 1
 
-        # Se guarda el nuevo pasajero
-        self._guardar_pasajero(nve[51], pasajero)
+            # Se guarda el nuevo pasajero
+            self._guardar_pasajero(nve[51], pasajero)
 
     def _llegada_mecanico(self, nve):
         """Método que se ejecuta ante el evento Llegada mecánico"""

@@ -85,11 +85,12 @@ def crear_resultados_simulacion(filas):
             {"name": "Tiempo proxima llegada", "id": "tiemp_prox_llegada"},
             {"name": "RND tipo llegada", "id": "RND_tipo_llegada"},
             {"name": "Tipo llegada", "id": "tipo_llegada"},
-            {"name": "Tiempo detenido el servicio V1", "id": "tiempo_detenido_v1"},
-            {"name": "Tiempo servicio V1 normalidad", "id": "tiempo_normalidad_v1"},
+            {"name": "Duracion de detencion ventanilla 1", "id": "tiempo_detenido_v1"},
+            {"name": "Tiempo fin detencion ventanilla 1", "id": "tiempo_normalidad_v1"},
             {"name": "Tiempo remanente cliente interrumpido", "id": "Tiempo_remanente"},
-            {"name": "Tiempo detenida la llegada cliente", "id": "tiempo_detenido_cliente"},
-            {"name": "Llegada cliente normalidad", "id": "tiempo_normalidad_cliente"},
+            {"name": "Duracion de detencion de llegada cliente", "id": "tiempo_detenido_cliente"},
+            {"name": "Tiempo fin detencion de llegada cliente ", "id": "tiempo_normalidad_cliente"},
+            {"name": "Estado del sistema", "id": "Llegadas al sistema"}
         ],
 
         data=[
@@ -162,6 +163,7 @@ def crear_resultados_simulacion(filas):
                 "Tiempo_remanente": f"{str_reloj(i[62])}" if i[62] is not None else "",
                 "tiempo_detenido_cliente": str_reloj(i[63]),
                 "tiempo_normalidad_cliente": str_reloj(i[64]),
+                "Llegadas al sistema": i[67]
 
             }
             for i in filas
