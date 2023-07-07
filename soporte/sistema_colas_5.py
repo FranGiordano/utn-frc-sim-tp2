@@ -206,7 +206,7 @@ class SistemaColas:
             tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
             solucion = tablasRK[-1][6]
 
-            tiempo_real = solucion * 30  # pondero el tiempo t = 1 = 30
+            tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
 
             nve[56] = tiempo_real
             nve[57] = tiempo_real + nve[1]
@@ -379,7 +379,7 @@ class SistemaColas:
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
 
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
 
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
@@ -391,7 +391,7 @@ class SistemaColas:
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
-        tiempo_real = tiempo_llegada * 30  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
 
@@ -513,6 +513,16 @@ class SistemaColas:
         nve[32] = self._proximo_tiempo_mantenimiento_maquina(nve[30], nve[31])
         nve[33] = nve[32] + nve[1]
 
+    def _contar_en_cola(self, pasajeros, estado, lista_tipo_atencion):
+        """Devuelve la cantidad en coladado un estado y una lista de tipos de atención"""
+
+        c = 0
+        for pasajero in pasajeros:
+            if pasajero.estado == estado and pasajero.tipo_atencion in lista_tipo_atencion:
+                c += 1
+        # Se levanta un error en caso de que no se haya encontrado ningún pasajero en la lista.
+        return c
+
     def _fin_atencion_ventanilla_inmediata1(self, nve):
         """Método que se ejecuta ante el evento Fin atención ventanilla inmediata 1"""
 
@@ -559,7 +569,8 @@ class SistemaColas:
             nve[15] = "Libre"
 
         # Si hay más pasajeros, lo atendemos
-        elif nve[39] > 0:
+        elif nve[39] > 0 and self._contar_en_cola(nve[51], "En cola", ["En ventanilla salida inmediata cercanía",
+                                                                "En ventanilla salida inmediata interprovincial"]) > 0:
             nve[39] -= 1
             pasajero = self._buscar_primer_pasajero(nve[51], "En cola", ["En ventanilla salida inmediata cercanía",
                                                                          "En ventanilla salida inmediata interprovincial"])
