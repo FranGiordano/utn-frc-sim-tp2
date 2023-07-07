@@ -278,7 +278,7 @@ def crear_resultados_simulacion(filas):
 
         merge_duplicate_headers=True,
 
-        page_size=15,
+        page_size=20,
 
         id="tabla_tp5",
 

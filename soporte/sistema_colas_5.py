@@ -26,6 +26,7 @@ class SistemaColas:
         self._a_llegada_pasajero_moderado = None
         self._cte_espera_impaciente = None
         self._hora_inicio_ventanilla_auxiliar = None
+        self._total_iteraciones = None
         self._nro_cliente = 0
         self._hora_inicio_critico = 6
         self._hora_inicio_moderado = 15
@@ -49,7 +50,7 @@ class SistemaColas:
         self._generador = rd.Random(semilla)
 
     def generar_parametros(self, a_lleg_pasaj_mod, b_lleg_pasaj_mod, media_lleg_pasaj_crit, lamb_cercania,
-                           lamb_interprov, lamb_maq, lamb_anticip, cte_impaciente, hora_inicio_auxiliar):
+                           lamb_interprov, lamb_maq, lamb_anticip, cte_impaciente, hora_inicio_auxiliar, total_iter):
         """Configuración de parámetros de acuerdo a lo que decida el usuario"""
 
         self._a_llegada_pasajero_moderado = a_lleg_pasaj_mod
@@ -61,6 +62,7 @@ class SistemaColas:
         self._lambda_atencion_anticipada = lamb_anticip
         self._cte_espera_impaciente = cte_impaciente
         self._hora_inicio_ventanilla_auxiliar = hora_inicio_auxiliar  # El mismo debe ser un valor >6 y <15
+        self._total_iteraciones = total_iter
 
     def simular(self, ctd_iteraciones, iteracion_a_grabar):
         """Ejecución de la simulación"""
@@ -72,22 +74,20 @@ class SistemaColas:
         vector_actual = []
 
         # Ejecución de simulación y anexo de vectores a filas para mostrar
-        total_iter = 10000
-
         for i in range(ctd_iteraciones):
 
             vector_actual = self._siguiente_vector(vector_anterior)
 
-            if iteracion_a_grabar <= (i + 1) < iteracion_a_grabar + total_iter:
+            if iteracion_a_grabar <= (i + 1) < iteracion_a_grabar + self._total_iteraciones:
                 filas_guardadas.append(vector_actual)
 
             if i != (ctd_iteraciones - 1):
                 vector_anterior = vector_actual
 
         # Se anexan los dos últimos vectores en caso de que no hayan sido anexados antes
-        if not (iteracion_a_grabar <= (vector_anterior[0]) < iteracion_a_grabar + total_iter):
+        if not (iteracion_a_grabar <= (vector_anterior[0]) < iteracion_a_grabar + self._total_iteraciones):
             filas_guardadas.append(vector_anterior)
-        if not (iteracion_a_grabar <= (vector_actual[0]) < iteracion_a_grabar + total_iter):
+        if not (iteracion_a_grabar <= (vector_actual[0]) < iteracion_a_grabar + self._total_iteraciones):
             filas_guardadas.append(vector_actual)
 
         return filas_guardadas

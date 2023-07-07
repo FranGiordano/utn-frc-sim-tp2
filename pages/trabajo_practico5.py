@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, State, Input, Output, callback, no_update, dcc, dash_table
 from soporte.sistema_colas_5 import SistemaColas
-from components.tp4.tab_parametros import crear_tab_parametros5
+from components.tp5.tab_parametros import crear_tab_parametros
 from components.tp5.resultados_sistema_colas import crear_resultados_simulacion
 import components.tp5.resultado_runge_kutta as trk
 import soporte.runge_kutta as rk
@@ -18,13 +18,12 @@ layout = html.Div([
 
         html.Center(html.H1('Trabajo Práctico Nº5: Modelo Combinado (Virus Informatico)'), className="mb-3"),
 
-        crear_tab_parametros5(),
+        crear_tab_parametros(),
 
         dbc.Toast("Los datos ingresados no son válidos, revíselos nuevamente.", icon="danger", dismissable=True,
                   id="toast_tp5", is_open=False, header="Simulación no generada.", duration=8000,
                   style={"position": "fixed", "top": 66, "right": 10, "width": 350}),
     ]),
-    html.Div({}, id="div_resultados_tp5"),
 
     dbc.Container([
 
@@ -38,7 +37,9 @@ layout = html.Div([
 
         html.Div({}, id="div_seleccion_runge")
 
-    ], className="mt-3 mb-3")
+    ], className="mt-3 mb-3"),
+
+    html.Div({}, id="div_resultados_tp5")
 ])
 
 
@@ -78,10 +79,11 @@ def cargar_boton(n_clicks):
     State("in_lambda_maquina_5", "value"),
     State("in_cte_impaciente_5", "value"),
     State("in_inicio_auxiliar_5", "value"),
+    State("in_iteracion_a_mostrar_5", "value"),
     prevent_initial_call=True
 )
 def ejecutar_simulacion(n_clicks, ctd_iter, iter_a_grabar, semilla, a_lleg_mod, b_lleg_mod, media_lleg_pasaj, lam_cerc,
-                        lam_inter, lam_antic, lam_maq, cte_impac, inicio_auxiliar):
+                        lam_inter, lam_antic, lam_maq, cte_impac, inicio_auxiliar, total_iter):
 
     # Validación de datos
     if None in [ctd_iter, iter_a_grabar, a_lleg_mod, b_lleg_mod, media_lleg_pasaj, lam_cerc, lam_inter, lam_antic,
@@ -91,7 +93,7 @@ def ejecutar_simulacion(n_clicks, ctd_iter, iter_a_grabar, semilla, a_lleg_mod, 
     # Ejecución de simulación
     simulacion = SistemaColas(semilla)
     simulacion.generar_parametros(a_lleg_mod, b_lleg_mod, media_lleg_pasaj, lam_cerc, lam_inter, lam_maq, lam_antic,
-                                  cte_impac, inicio_auxiliar)
+                                  cte_impac, inicio_auxiliar, total_iter)
     filas = simulacion.simular(ctd_iter, iter_a_grabar)
 
     # Generación de tabla
