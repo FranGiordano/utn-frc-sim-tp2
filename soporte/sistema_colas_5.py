@@ -206,7 +206,7 @@ class SistemaColas:
             tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
             solucion = tablasRK[-1][6]
 
-            tiempo_real = solucion * 0.07  # pondero el tiempo t = 1 = 30
+            tiempo_real = solucion * 1  # pondero el tiempo t = 1 = 30
 
             nve[56] = tiempo_real
             nve[57] = tiempo_real + nve[1]
@@ -333,6 +333,8 @@ class SistemaColas:
             nve[63] = tiempo_real
             nve[64] = tiempo_real + nve[1]
 
+        nve[57] = None
+
 
     def _fin_interrupcion_virus_servicio(self, nve):
 
@@ -344,7 +346,6 @@ class SistemaColas:
         pasajero.estado = "Siendo atendido"'''
 
         # El cliente que era atendido, ahora va a terminar su atencion
-
 
         if nve[62] is not None:
             nve[13] = nve[62] + nve[1] # continuo con el fin de servicio
@@ -379,7 +380,7 @@ class SistemaColas:
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
 
-        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 1  # pondero el tiempo t = 1 = 30
 
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
@@ -391,7 +392,7 @@ class SistemaColas:
         nve[65] = b
         tablasRK = rk.cuando_detiene(self._interrupcion_inicio, b, 0.001)
         tiempo_llegada = tablasRK[-1][6]
-        tiempo_real = tiempo_llegada * 0.07  # pondero el tiempo t = 1 = 30
+        tiempo_real = tiempo_llegada * 1  # pondero el tiempo t = 1 = 30
         nve[56] = tiempo_real
         nve[57] = tiempo_real + nve[1]
 
